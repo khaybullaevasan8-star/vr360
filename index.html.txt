@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>VR 360 Player — тест</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-stereo-component@0.7.0/dist/aframe-stereo-component.min.js"></script>
+  <style>
+    body{margin:0;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;}
+    button{background:#00b894;border:none;color:#fff;padding:10px 18px;border-radius:8px;cursor:pointer;margin:8px}
+    #message{max-width:760px;margin:12px;padding:8px;color:#ffd;}
+    a-scene{position:fixed;inset:0;width:100%;height:100%}
+    #controls{z-index:20;position:relative}
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <div id="langSelect">
+      <h2>Выберите язык / Tilni tanlang / Choose language</h2>
+      <button onclick="setLang('ru')">Русский</button>
+      <button onclick="setLang('uz')">O‘zbekcha</button>
+      <button onclick="setLang('en')">English</button>
+    </div>
+
+    <div id="info" style="display:none;">
+      <p id="text"></p>
+      <button id="enterVR">Смотреть видео</button>
+      <div id="message" style="display:none;"></div>
+      <div style="margin-top:8px">
+        <button id="openDirect" style="display:none;">Открыть видео в новой вкладке</button>
+      </div>
+    </div>
+  </div>
+
+  <a-scene id="scene" embedded vr-mode-ui="enabled:true" style="display:none;">
+    <a-assets>
+      <video id="vrvideo" loop crossorigin="anonymous" playsinline webkit-playsinline preload="auto"
+             src="https://files.catbox.moe/hqn35y.mp4"></video>
+    </a-assets>
+
+    <a-videosphere src="#vrvideo" stereo="side-by-side"></a-videosphere>
+  </a-scene>
+
+<script>
+const VIDEO_URL = "https://files.catbox.moe/hqn35y.mp4";
+
+const langText = {
+  ru: "Сейчас вы увидите 360° видео. Вращайте телефон или двигайте пальцем, чтобы осмотреться вокруг. Для Cardboard нажмите иконку очков.",
+  uz: "Hozir siz 360° videoni ko‘rasiz. Telefonni aylantiring yoki barmog‘ingiz bilan atrofga qarang. Cardboard uchun ko‘zoynak belgisini bosing.",
+  en: "You are about to watch a 360° video. Move your phone or drag to look around. Tap the headset icon for Cardboard mode."
+};
+
+function setLang(lang){
+  document.getElementById('langSelect').style.display='none';
+  document.getElementById('info').style.display='block';
+  document.getElementById('text').textContent = langText[lang] || langText.en;
+  document.getElementById('enterVR').textContent = (lang==='ru') ? 'Смотреть видео' : (lang==='uz') ? 'Videoni tomosha qilish' : 'Watch video';
+}
+
+// Обработчик: кнопка "Смотреть видео"
+document.getElementById('enterVR').addEventListener('click', async () => {
+  // Показываем сцену
+  document.getElementById('info').style.display='none';
+  document.getElementById('scene').style.display='block';
+
+  const video = document.getElementById('vrvideo');
+
+  // Попытка включить muted + play (больше шансов на автозапуск)
+  try {
+    video.muted = true; // убирать звук при старте — помогает автозапуску
+    await video.play();
+    console.log("Видео запущено (muted=true).");
+  } catch (err) {
+    console.error("Ошибка при попытке play():", err);
+    // Покажем кнопку открыть в новой вкладке
+    showMessage("Не удалось автоматически воспроизвести видео в текущем окне. Нажмите «Открыть видео в новой вкладке».", true);
+    document.getElementById('openDirect').style.display = 'inline-block';
+  }
+
+  // Если видео завершает загрузку с ошибкой — слушаем событие error
+  video.addEventListener('error', (e) => {
+    console.error("Video element error:", e, video.error);
+    let msg = "Ошибка загрузки видео — возможно, сервер блокирует доступ (CORS) или файл недоступен.";
+    showMessage(msg, true);
+    document.getElementById('openDirect').style.display = 'inline-block';
+  });
+
+  // Дополнительно: слушаем loadeddata чтобы понимать, что поток доступен
+  video.addEventListener('loadeddata', () => {
+    console.log("Событие loadeddata — видеопоток доступен.");
+    hideMessage();
+  });
+});
+
+// Кнопка открыть напрямую
+document.getElementById('openDirect').addEventListener('click', () => {
+  window.open(VIDEO_URL, '_blank', 'noopener');
+});
+
+function showMessage(text, showOpen) {
+  const m = document.getElementById('message');
+  m.style.display = 'block';
+  m.textContent = text;
+  if(!showOpen) document.getElementById('openDirect').style.display='none';
+}
+
+function hideMessage(){
+  const m = document.getElementById('message');
+  m.style.display = 'none';
+}
+
+// Подсказка по языку
+document.getElementById('langSelect').style.display='block';
+</script>
+</body>
+</html>
