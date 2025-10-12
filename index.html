@@ -74,16 +74,6 @@
       transform: translateY(-2px);
     }
 
-    .preview {
-      width: 100%;
-      max-width: 320px;
-      border-radius: 8px;
-      margin: 12px auto;
-      display: block;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-      border: 2px solid #a88f61;
-    }
-
     .fade {
       animation: fadeIn 1s ease forwards;
     }
@@ -103,25 +93,25 @@
   <!-- Экран 1: выбор языка -->
   <div id="langScreen" class="screen fade">
     <div class="card">
-      <h2>Выберите язык / Select language</h2>
+      <h2>Выберите язык / Select language / Tilni tanlang</h2>
       <button class="btn" onclick="nextScreen('ru')">Русский</button>
       <button class="btn" onclick="nextScreen('en')">English</button>
+      <button class="btn" onclick="nextScreen('uz')">Oʻzbekcha</button>
     </div>
   </div>
 
   <!-- Экран 2: инструкция -->
   <div id="instructionScreen" class="screen" style="display:none;">
     <div class="card fade">
-      <h3 id="instructionText">Нажмите «Просмотр», чтобы начать тур</h3>
-      <img class="preview" src="https://i.imgur.com/hIgXSPN.jpeg" alt="Превью видео">
-      <button class="btn" onclick="showVersionOptions()">Просмотр</button>
+      <h3 id="instructionText"></h3>
+      <button class="btn" onclick="showVersionOptions()" id="viewButton">Просмотр</button>
     </div>
   </div>
 
   <!-- Экран 3: выбор версии -->
   <div id="versionScreen" class="screen" style="display:none;">
     <div class="card fade">
-      <h3>Выберите вариант просмотра</h3>
+      <h3 id="versionTitle">Выберите вариант просмотра</h3>
       <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=6WX-oVWf5YY','_blank')">Короткая версия</button>
       <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=T3ypZKNN7_4','_blank')">Полная версия</button>
     </div>
@@ -131,10 +121,26 @@
     function nextScreen(lang) {
       document.getElementById("langScreen").style.display = "none";
       document.getElementById("instructionScreen").style.display = "flex";
-      const text = lang === "en"
-        ? "Click “View” to start the tour"
-        : "Нажмите «Просмотр», чтобы начать тур";
+
+      let text = "";
+      let buttonText = "";
+      switch (lang) {
+        case "ru":
+          text = "Добро пожаловать! Этот виртуальный тур перенесёт вас в древний дворец. Нажмите «Просмотр», чтобы начать.";
+          buttonText = "Просмотр";
+          break;
+        case "en":
+          text = "Welcome! This virtual tour will take you to an ancient palace. Click 'View' to begin.";
+          buttonText = "View";
+          break;
+        case "uz":
+          text = "Xush kelibsiz! Ushbu virtual sayohat sizni qadimiy saroyga olib boradi. Boshlash uchun «Ko‘rish» tugmasini bosing.";
+          buttonText = "Ko‘rish";
+          break;
+      }
+
       document.getElementById("instructionText").innerText = text;
+      document.getElementById("viewButton").innerText = buttonText;
     }
 
     function showVersionOptions() {
