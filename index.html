@@ -52,41 +52,10 @@
       background: linear-gradient(to bottom, #d4bc8a, #b5996b);
       transform: translateY(-2px);
     }
-
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
-    }
-
-    #backBtn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: rgba(168,143,97,0.9);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
-      z-index: 20;
-    }
-
-    #backBtn:hover {
-      background: #c5a86b;
-    }
-
-    #videoScreen {
-      display: none;
-      background: #000;
-    }
   </style>
 </head>
 
 <body>
-
   <!-- Экран выбора языка -->
   <div id="langScreen" class="screen">
     <div class="card">
@@ -99,7 +68,6 @@
 
   <!-- Экран приветствия -->
   <div id="greetingScreen" class="screen" style="display:none;">
-    <button id="backBtn" onclick="goBack()">←</button>
     <div class="card">
       <h3 id="greetingText"></h3>
       <div>
@@ -111,7 +79,6 @@
 
   <!-- Экран инструкции -->
   <div id="instructionScreen" class="screen" style="display:none;">
-    <button id="backBtn" onclick="goBack()">←</button>
     <div class="card">
       <h2 id="instructionTitle"></h2>
       <h3 id="instructionText"></h3>
@@ -119,33 +86,15 @@
     <button class="btn" id="startBtn" style="margin-top:20px;"></button>
   </div>
 
-  <!-- Экран видео -->
-  <div id="videoScreen" class="screen">
-    <button id="backBtn" onclick="goBack()">←</button>
-    <iframe id="ytPlayer" allow="gyroscope; accelerometer; fullscreen" allowfullscreen></iframe>
-  </div>
-
   <script>
     let currentLang = 'ru';
-    let videoId = '';
+    let videoUrl = '';
     let currentScreen = 'langScreen';
 
     function showScreen(id) {
       document.getElementById(currentScreen).style.display = "none";
       document.getElementById(id).style.display = "flex";
       currentScreen = id;
-    }
-
-    function goBack() {
-      // Остановка видео при возврате
-      if (currentScreen === "videoScreen") {
-        const iframe = document.getElementById("ytPlayer");
-        iframe.src = ""; // сброс плеера
-      }
-
-      if (currentScreen === "greetingScreen") showScreen("langScreen");
-      else if (currentScreen === "instructionScreen") showScreen("greetingScreen");
-      else if (currentScreen === "videoScreen") showScreen("instructionScreen");
     }
 
     function showGreeting(lang) {
@@ -172,28 +121,27 @@
       }
 
       document.getElementById("greetingText").innerText = greet;
-
-      // Пример 360° видео для проверки
-      document.getElementById("shortBtn").onclick = () => showInstruction("-xNN-bJQ4vI");
-      document.getElementById("fullBtn").onclick = () => showInstruction("T3ypZKNN7_4");
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
+
+      document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
+      document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
     }
 
-    function showInstruction(id) {
-      videoId = id;
+    function showInstruction(url) {
+      videoUrl = url;
       showScreen("instructionScreen");
 
-      let text, title, startText;
+      let title, text, startText;
       switch (currentLang) {
         case "ru":
           title = "Виртуальный тур по древнему городу";
-          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы запустить видео.";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
           startText = "Начать";
           break;
         case "en":
           title = "Virtual tour of the ancient city";
-          text = "Instruction: use your mouse or gyroscope to move the view. Press 'Start' to begin.";
+          text = "Instruction: use your mouse or gyroscope to move the view. Click 'Start' to open the video.";
           startText = "Start";
           break;
         case "uz":
@@ -206,14 +154,9 @@
       document.getElementById("instructionTitle").innerText = title;
       document.getElementById("instructionText").innerText = text;
       document.getElementById("startBtn").innerText = startText;
-      document.getElementById("startBtn").onclick = () => showVideoPlayer(videoId);
-    }
-
-    function showVideoPlayer(id) {
-      showScreen("videoScreen");
-      // Чистая ссылка на YouTube (работает с 360° видео)
-      const embedUrl = `https://www.youtube.com/embed/${id}?playsinline=1&autoplay=1&rel=0&fs=1&modestbranding=1`;
-      document.getElementById("ytPlayer").src = embedUrl;
+      document.getElementById("startBtn").onclick = () => {
+        window.open(videoUrl, "_blank");
+      };
     }
   </script>
 </body>
