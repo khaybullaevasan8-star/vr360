@@ -14,18 +14,6 @@
       overflow: hidden;
     }
 
-    .title {
-      position: absolute;
-      top: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 2rem;
-      color: #3a2c1a;
-      text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
-      font-weight: bold;
-      z-index: 10;
-    }
-
     .screen {
       position: absolute;
       inset: 0;
@@ -94,15 +82,13 @@
       display: none;
       background: #000;
     }
-
   </style>
 </head>
 
 <body>
-  <div id="pageTitle" class="title">VR 360 Тур</div>
 
   <!-- Экран выбора языка -->
-  <div id="langScreen" class="screen fade">
+  <div id="langScreen" class="screen">
     <div class="card">
       <h2>Выберите язык / Select language / Tilni tanlang</h2>
       <button class="btn" onclick="showGreeting('ru')">Русский</button>
@@ -114,7 +100,7 @@
   <!-- Экран приветствия -->
   <div id="greetingScreen" class="screen" style="display:none;">
     <button id="backBtn" onclick="goBack()">←</button>
-    <div class="card fade">
+    <div class="card">
       <h3 id="greetingText"></h3>
       <div>
         <button class="btn" id="shortBtn"></button>
@@ -126,7 +112,8 @@
   <!-- Экран инструкции -->
   <div id="instructionScreen" class="screen" style="display:none;">
     <button id="backBtn" onclick="goBack()">←</button>
-    <div class="card fade">
+    <div class="card">
+      <h2 id="instructionTitle"></h2>
       <h3 id="instructionText"></h3>
     </div>
     <button class="btn" id="startBtn" style="margin-top:20px;"></button>
@@ -135,22 +122,13 @@
   <!-- Экран видео -->
   <div id="videoScreen" class="screen">
     <button id="backBtn" onclick="goBack()">←</button>
-    <iframe id="ytPlayer" allow="gyroscope; accelerometer; fullscreen; vr" allowfullscreen></iframe>
-  </div>
-
-  <!-- Экран спасибо -->
-  <div id="thankScreen" class="screen" style="display:none;">
-    <div class="card fade">
-      <h2 id="thankText"></h2>
-      <button class="btn" onclick="restart()">↺ Начать заново</button>
-    </div>
+    <iframe id="ytPlayer" allow="gyroscope; accelerometer; fullscreen" allowfullscreen></iframe>
   </div>
 
   <script>
     let currentLang = 'ru';
     let videoId = '';
     let currentScreen = 'langScreen';
-    let player;
 
     function showScreen(id) {
       document.getElementById(currentScreen).style.display = "none";
@@ -159,71 +137,73 @@
     }
 
     function goBack() {
+      // Остановка видео при возврате
+      if (currentScreen === "videoScreen") {
+        const iframe = document.getElementById("ytPlayer");
+        iframe.src = ""; // сброс плеера
+      }
+
       if (currentScreen === "greetingScreen") showScreen("langScreen");
       else if (currentScreen === "instructionScreen") showScreen("greetingScreen");
       else if (currentScreen === "videoScreen") showScreen("instructionScreen");
-      else if (currentScreen === "thankScreen") showScreen("langScreen");
-    }
-
-    function restart() {
-      location.reload();
     }
 
     function showGreeting(lang) {
       currentLang = lang;
       showScreen("greetingScreen");
 
-      let title, greet, shortText, fullText;
+      let greet, shortText, fullText;
       switch (lang) {
         case "ru":
-          title = "Виртуальный тур по древнему городу";
           greet = "Выберите вариант просмотра:";
           shortText = "Короткая версия";
           fullText = "Полная версия";
           break;
         case "en":
-          title = "Virtual tour of the ancient city";
           greet = "Choose a version to view:";
           shortText = "Short version";
           fullText = "Full version";
           break;
         case "uz":
-          title = "Qadimiy shahar bo‘ylab virtual sayohat";
           greet = "Ko‘rish turini tanlang:";
           shortText = "Qisqa versiya";
           fullText = "To‘liq versiya";
           break;
       }
 
-      document.getElementById("pageTitle").innerText = title;
       document.getElementById("greetingText").innerText = greet;
+
+      // Пример 360° видео для проверки
+      document.getElementById("shortBtn").onclick = () => showInstruction("-xNN-bJQ4vI");
+      document.getElementById("fullBtn").onclick = () => showInstruction("T3ypZKNN7_4");
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
-
-      document.getElementById("shortBtn").onclick = () => showInstruction("6WX-oVWf5YY");
-      document.getElementById("fullBtn").onclick = () => showInstruction("T3ypZKNN7_4");
     }
 
     function showInstruction(id) {
       videoId = id;
       showScreen("instructionScreen");
 
-      let text, startText;
+      let text, title, startText;
       switch (currentLang) {
         case "ru":
-          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Для VR нажмите значок очков.";
+          title = "Виртуальный тур по древнему городу";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы запустить видео.";
           startText = "Начать";
           break;
         case "en":
-          text = "Instruction: use your mouse or gyroscope to move the view. For VR mode, press the headset icon.";
+          title = "Virtual tour of the ancient city";
+          text = "Instruction: use your mouse or gyroscope to move the view. Press 'Start' to begin.";
           startText = "Start";
           break;
         case "uz":
-          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. VR rejimi uchun ko‘zoynak belgini bosing.";
+          title = "Qadimiy shahar bo‘ylab virtual sayohat";
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. 'Boshlash' tugmasini bosing.";
           startText = "Boshlash";
           break;
       }
 
+      document.getElementById("instructionTitle").innerText = title;
       document.getElementById("instructionText").innerText = text;
       document.getElementById("startBtn").innerText = startText;
       document.getElementById("startBtn").onclick = () => showVideoPlayer(videoId);
@@ -231,48 +211,9 @@
 
     function showVideoPlayer(id) {
       showScreen("videoScreen");
-
-      // Правильная ссылка для 360° и VR (embed-режим)
-      const embedUrl = `https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0&autoplay=1&fs=1&modestbranding=1&vr=1`;
-      const iframe = document.getElementById("ytPlayer");
-      iframe.src = embedUrl;
-
-      if (typeof YT === "undefined") {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.body.appendChild(tag);
-      } else {
-        createPlayer();
-      }
-    }
-
-    function onYouTubeIframeAPIReady() {
-      createPlayer();
-    }
-
-    function createPlayer() {
-      player = new YT.Player('ytPlayer', {
-        events: {
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED) {
-        showThankYou();
-      }
-    }
-
-    function showThankYou() {
-      showScreen("thankScreen");
-      let text;
-      switch (currentLang) {
-        case "ru": text = "Спасибо за просмотр!"; break;
-        case "en": text = "Thank you for watching!"; break;
-        case "uz": text = "Tomosha qilganingiz uchun rahmat!"; break;
-      }
-      document.getElementById("thankText").innerText = text;
+      // Чистая ссылка на YouTube (работает с 360° видео)
+      const embedUrl = `https://www.youtube.com/embed/${id}?playsinline=1&autoplay=1&rel=0&fs=1&modestbranding=1`;
+      document.getElementById("ytPlayer").src = embedUrl;
     }
   </script>
 </body>
