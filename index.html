@@ -16,7 +16,7 @@
 
     .title {
       position: absolute;
-      top: 25px;
+      top: 20px;
       width: 100%;
       text-align: center;
       font-size: 2rem;
@@ -32,6 +32,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
     }
 
     .card {
@@ -64,29 +65,34 @@
       transform: translateY(-2px);
     }
 
-    .fade {
-      animation: fadeIn 1s ease forwards;
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    #backBtn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(168,143,97,0.9);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+      z-index: 20;
     }
 
-    /* VR плеер */
+    #backBtn:hover {
+      background: #c5a86b;
+    }
+
     #videoScreen {
       display: none;
-      align-items: center;
-      justify-content: center;
       background: #000;
-    }
-
-    iframe {
-      width: 90vw;
-      height: 90vh;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
     }
 
   </style>
@@ -95,7 +101,7 @@
 <body>
   <div id="pageTitle" class="title">VR 360 Тур</div>
 
-  <!-- Экран 1: выбор языка -->
+  <!-- Экран выбора языка -->
   <div id="langScreen" class="screen fade">
     <div class="card">
       <h2>Выберите язык / Select language / Tilni tanlang</h2>
@@ -105,8 +111,9 @@
     </div>
   </div>
 
-  <!-- Экран 2: приветствие -->
+  <!-- Экран приветствия -->
   <div id="greetingScreen" class="screen" style="display:none;">
+    <button id="backBtn" onclick="goBack()">←</button>
     <div class="card fade">
       <h3 id="greetingText"></h3>
       <div>
@@ -116,46 +123,73 @@
     </div>
   </div>
 
-  <!-- Экран 3: инструкция -->
+  <!-- Экран инструкции -->
   <div id="instructionScreen" class="screen" style="display:none;">
+    <button id="backBtn" onclick="goBack()">←</button>
     <div class="card fade">
       <h3 id="instructionText"></h3>
-      <button class="btn" id="startBtn"></button>
     </div>
+    <button class="btn" id="startBtn" style="margin-top:20px;"></button>
   </div>
 
-  <!-- Экран 4: плеер -->
+  <!-- Экран видео -->
   <div id="videoScreen" class="screen">
-    <iframe id="ytPlayer" allow="vr; accelerometer; gyroscope; autoplay; fullscreen" allowfullscreen></iframe>
+    <button id="backBtn" onclick="goBack()">←</button>
+    <iframe id="ytPlayer" allow="gyroscope; accelerometer; fullscreen; vr" allowfullscreen></iframe>
+  </div>
+
+  <!-- Экран спасибо -->
+  <div id="thankScreen" class="screen" style="display:none;">
+    <div class="card fade">
+      <h2 id="thankText"></h2>
+      <button class="btn" onclick="restart()">↺ Начать заново</button>
+    </div>
   </div>
 
   <script>
     let currentLang = 'ru';
     let videoId = '';
+    let currentScreen = 'langScreen';
+    let player;
+
+    function showScreen(id) {
+      document.getElementById(currentScreen).style.display = "none";
+      document.getElementById(id).style.display = "flex";
+      currentScreen = id;
+    }
+
+    function goBack() {
+      if (currentScreen === "greetingScreen") showScreen("langScreen");
+      else if (currentScreen === "instructionScreen") showScreen("greetingScreen");
+      else if (currentScreen === "videoScreen") showScreen("instructionScreen");
+      else if (currentScreen === "thankScreen") showScreen("langScreen");
+    }
+
+    function restart() {
+      location.reload();
+    }
 
     function showGreeting(lang) {
       currentLang = lang;
-      document.getElementById("langScreen").style.display = "none";
-      document.getElementById("greetingScreen").style.display = "flex";
+      showScreen("greetingScreen");
 
-      let title = "", greet = "", shortText = "", fullText = "";
-
+      let title, greet, shortText, fullText;
       switch (lang) {
         case "ru":
           title = "Виртуальный тур по древнему городу";
-          greet = "Добро пожаловать! Выберите вариант просмотра:";
+          greet = "Выберите вариант просмотра:";
           shortText = "Короткая версия";
           fullText = "Полная версия";
           break;
         case "en":
           title = "Virtual tour of the ancient city";
-          greet = "Welcome! Choose a version to view:";
+          greet = "Choose a version to view:";
           shortText = "Short version";
           fullText = "Full version";
           break;
         case "uz":
           title = "Qadimiy shahar bo‘ylab virtual sayohat";
-          greet = "Xush kelibsiz! Ko‘rish turini tanlang:";
+          greet = "Ko‘rish turini tanlang:";
           shortText = "Qisqa versiya";
           fullText = "To‘liq versiya";
           break;
@@ -166,51 +200,79 @@
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
 
-      document.getElementById("shortBtn").onclick = function() {
-        showInstruction("6WX-oVWf5YY");
-      };
-      document.getElementById("fullBtn").onclick = function() {
-        showInstruction("T3ypZKNN7_4");
-      };
+      document.getElementById("shortBtn").onclick = () => showInstruction("6WX-oVWf5YY");
+      document.getElementById("fullBtn").onclick = () => showInstruction("T3ypZKNN7_4");
     }
 
     function showInstruction(id) {
       videoId = id;
-      document.getElementById("greetingScreen").style.display = "none";
-      document.getElementById("instructionScreen").style.display = "flex";
+      showScreen("instructionScreen");
 
-      let text = "", startText = "";
-
+      let text, startText;
       switch (currentLang) {
         case "ru":
-          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Для VR нажмите значок очков в плеере. Нажмите «Начать».";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Для VR нажмите значок очков.";
           startText = "Начать";
           break;
         case "en":
-          text = "Instruction: use your mouse or gyroscope to look around. For VR mode, press the headset icon in the player. Click 'Start'.";
+          text = "Instruction: use your mouse or gyroscope to move the view. For VR mode, press the headset icon.";
           startText = "Start";
           break;
         case "uz":
-          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. VR rejimi uchun pleerdagi ko‘zoynak belgini bosing.";
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. VR rejimi uchun ko‘zoynak belgini bosing.";
           startText = "Boshlash";
           break;
       }
 
       document.getElementById("instructionText").innerText = text;
       document.getElementById("startBtn").innerText = startText;
-
-      document.getElementById("startBtn").onclick = function() {
-        showVideoPlayer(videoId);
-      };
+      document.getElementById("startBtn").onclick = () => showVideoPlayer(videoId);
     }
 
     function showVideoPlayer(id) {
-      document.getElementById("instructionScreen").style.display = "none";
-      document.getElementById("videoScreen").style.display = "flex";
+      showScreen("videoScreen");
 
-      // Важно: используем embed-ссылку с VR/360 поддержкой
-      const embedUrl = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&showinfo=1&enablejsapi=1&playsinline=1&vr_mode=1`;
-      document.getElementById("ytPlayer").src = embedUrl;
+      // Правильная ссылка для 360° и VR (embed-режим)
+      const embedUrl = `https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0&autoplay=1&fs=1&modestbranding=1&vr=1`;
+      const iframe = document.getElementById("ytPlayer");
+      iframe.src = embedUrl;
+
+      if (typeof YT === "undefined") {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+      } else {
+        createPlayer();
+      }
+    }
+
+    function onYouTubeIframeAPIReady() {
+      createPlayer();
+    }
+
+    function createPlayer() {
+      player = new YT.Player('ytPlayer', {
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        showThankYou();
+      }
+    }
+
+    function showThankYou() {
+      showScreen("thankScreen");
+      let text;
+      switch (currentLang) {
+        case "ru": text = "Спасибо за просмотр!"; break;
+        case "en": text = "Thank you for watching!"; break;
+        case "uz": text = "Tomosha qilganingiz uchun rahmat!"; break;
+      }
+      document.getElementById("thankText").innerText = text;
     }
   </script>
 </body>
