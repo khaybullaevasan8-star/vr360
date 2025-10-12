@@ -1,222 +1,122 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L9YM4DBTQ1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-L9YM4DBTQ1');
-  </script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VR 360 Tour</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <meta charset="utf-8" />
-  <title>VR Tour — Ak Saray 360°</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-stereo-component@0.7.0/dist/aframe-stereo-component.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+        font-family: Arial, sans-serif;
+      }
 
-  <style>
-    body {
-      margin: 0;
-      background: #b36b4a; /* тёплый цвет старого кирпича */
-      color: #fff;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      text-align: center;
-    }
+      /* Заголовок */
+      .title {
+        position: absolute;
+        top: 20px;
+        width: 100%;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 15px #00ffff;
+        z-index: 10;
+        animation: fadeIn 2s ease-in-out;
+      }
 
-    header#topHeader {
-      position: relative;
-      width: 100%;
-      text-align: center;
-      background: linear-gradient(180deg, #2c3e50 0%, #7f8c8d 100%);
-      padding: 20px 0;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      animation: fadeInHeader 1.5s ease-out;
-    }
+      /* Панель управления */
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        color: white;
+        z-index: 20;
+        animation: fadeIn 2s ease-in-out;
+      }
 
-    #logo {
-      width: 280px;
-      max-width: 70%;
-      animation: floatLogo 6s ease-in-out infinite;
-    }
+      /* Кнопки */
+      button {
+        background: rgba(0, 255, 255, 0.2);
+        border: 1px solid #00ffff;
+        color: white;
+        padding: 8px 16px;
+        margin: 5px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+      }
 
-    #topHeader h1 {
-      font-size: 1.6em;
-      margin-top: 10px;
-      color: #f5f5f5;
-      text-shadow: 0 0 8px rgba(255,255,255,0.6);
-    }
+      button:hover {
+        background: #00ffff;
+        color: black;
+      }
 
-    @keyframes fadeInHeader {
-      from {opacity: 0; transform: translateY(-40px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
+      /* Инструкция */
+      .instruction {
+        margin-top: 10px;
+        font-size: 1rem;
+        text-shadow: 0 0 10px black;
+      }
 
-    @keyframes floatLogo {
-      0%, 100% {transform: translateY(0);}
-      50% {transform: translateY(-6px);}
-    }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    </style>
+  </head>
 
-    #controls {
-      margin-top: 30px;
-      z-index: 20;
-      position: relative;
-    }
+  <body>
+    <div class="title">VR 360 Tour</div>
 
-    button {
-      background: linear-gradient(90deg, #2ecc71, #27ae60);
-      border: none;
-      color: #fff;
-      padding: 12px 22px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 8px;
-      font-size: 16px;
-      transition: all 0.3s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    }
+    <!-- Панель с кнопками -->
+    <div class="controls">
+      <div>
+        <button onclick="setLang('ru')">🇷🇺 Рус</button>
+        <button onclick="setLang('en')">🇬🇧 Eng</button>
+        <button onclick="setLang('uz')">🇺🇿 O‘zb</button>
+      </div>
 
-    button:hover {
-      transform: scale(1.05);
-      background: linear-gradient(90deg, #27ae60, #1e8449);
-    }
-
-    #message {
-      max-width: 760px;
-      margin: 12px auto;
-      padding: 8px;
-      color: #ffe;
-      display: none;
-    }
-
-    a-scene {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-    }
-
-    /* Контролы плеера */
-    #playerControls {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 15px;
-      z-index: 9999;
-    }
-
-    #playerControls button {
-      background: rgba(0,0,0,0.6);
-      border: 1px solid #ccc;
-      padding: 10px 16px;
-      border-radius: 50%;
-      font-size: 18px;
-    }
-
-    #playerControls button:hover {
-      background: rgba(255,255,255,0.2);
-    }
-
-  </style>
-</head>
-<body>
-
-  <!-- ШАПКА -->
-  <header id="topHeader">
-    <img src="logo.png" alt="VR Ak-Saray" id="logo">
-    <h1>VR Tour — Ak Saray 360°</h1>
-  </header>
-
-  <!-- КНОПКИ ВЫБОРА ЯЗЫКА -->
-  <div id="controls">
-    <div id="langSelect">
-      <h2>Выберите язык / Tilni tanlang / Choose language</h2>
-      <button onclick="setLang('ru')">Русский</button>
-      <button onclick="setLang('uz')">O‘zbekcha</button>
-      <button onclick="setLang('en')">English</button>
-    </div>
-
-    <div id="info" style="display:none;">
-      <p id="text"></p>
-      <button id="enterVR">Смотреть видео</button>
-      <div id="message"></div>
-      <div style="margin-top:8px">
-        <button id="openDirect" style="display:none;">Открыть видео в новой вкладке</button>
+      <div class="instruction" id="instruction">
+        Используй мышь или движения телефона, чтобы осмотреться вокруг.  
+        Нажми кнопку «VR», чтобы войти в режим Cardboard.
       </div>
     </div>
-  </div>
 
-  <!-- СЦЕНА VR -->
-  <a-scene id="scene" embedded vr-mode-ui="enabled:true">
-    <a-assets>
-      <video id="vrvideo" loop crossorigin="anonymous" playsinline webkit-playsinline preload="auto"
-        src="https://ia600602.us.archive.org/34/items/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4"></video>
-    </a-assets>
-    <a-videosphere src="#vrvideo" stereo="side-by-side"></a-videosphere>
-  </a-scene>
+    <!-- VR-сцена -->
+    <a-scene vr-mode-ui="enabled: true">
+      <a-assets>
+        <video
+          id="vrVideo"
+          src="https://archive.org/download/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4"
+          autoplay
+          loop="true"
+          crossorigin="anonymous"
+          playsinline
+          webkit-playsinline
+        ></video>
+      </a-assets>
 
-  <!-- КОНТРОЛЫ PLAY/PAUSE -->
-  <div id="playerControls" style="display:none;">
-    <button id="playPauseBtn">⏸</button>
-  </div>
+      <a-videosphere src="#vrVideo" rotation="0 -90 0"></a-videosphere>
+    </a-scene>
 
-  <script>
-    const VIDEO_URL = "https://ia600602.us.archive.org/34/items/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4";
-    const langText = {
-      ru: "Сейчас вы увидите 360° видео. Вращайте телефон или двигайте пальцем, чтобы осмотреться вокруг. Для Cardboard нажмите иконку очков.",
-      uz: "Hozir siz 360° videoni ko‘rasiz. Telefonni aylantiring yoki barmog‘ingiz bilan atrofga qarang. Cardboard uchun ko‘zoynak belgisini bosing.",
-      en: "You are about to watch a 360° video. Move your phone or drag to look around. Tap the headset icon for Cardboard mode."
-    };
+    <script>
+      // Тексты для разных языков
+      const texts = {
+        ru: "Используй мышь или движения телефона, чтобы осмотреться вокруг. Нажми кнопку «VR», чтобы войти в режим Cardboard.",
+        en: "Use your mouse or phone movement to look around. Tap the 'VR' button to enter Cardboard mode.",
+        uz: "Atrofga qarash uchun sichqoncha yoki telefonni harakatlantiring. 'VR' tugmasini bosing — Cardboard rejimiga kiring."
+      };
 
-    function setLang(lang){
-      document.getElementById('langSelect').style.display='none';
-      document.getElementById('info').style.display='block';
-      document.getElementById('text').textContent = langText[lang] || langText.en;
-      document.getElementById('enterVR').textContent =
-        (lang==='ru') ? 'Смотреть видео' :
-        (lang==='uz') ? 'Videoni tomosha qilish' :
-        'Watch video';
-    }
-
-    const video = document.getElementById('vrvideo');
-    const scene = document.getElementById('scene');
-    const playerControls = document.getElementById('playerControls');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-
-    document.getElementById('enterVR').addEventListener('click', async () => {
-      document.getElementById('info').style.display='none';
-      scene.style.display='block';
-      playerControls.style.display='flex';
-
-      try {
-        video.muted = false;
-        await video.play();
-      } catch (err) {
-        console.error("Ошибка при запуске видео:", err);
-        document.getElementById('message').style.display = 'block';
-        document.getElementById('message').textContent = 'Не удалось автоматически воспроизвести видео. Нажмите «Открыть видео в новой вкладке».';
-        document.getElementById('openDirect').style.display = 'inline-block';
+      function setLang(lang) {
+        document.getElementById("instruction").innerText = texts[lang];
       }
-    });
-
-    playPauseBtn.addEventListener('click', () => {
-      if (video.paused) {
-        video.play();
-        playPauseBtn.textContent = '⏸';
-      } else {
-        video.pause();
-        playPauseBtn.textContent = '▶';
-      }
-    });
-
-    document.getElementById('openDirect').addEventListener('click', () => {
-      window.open(VIDEO_URL, '_blank', 'noopener');
-    });
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>
