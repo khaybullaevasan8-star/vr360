@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       height: 100%;
-      background: #f5f0e6; /* однотонный фон */
+      background: #f5f0e6;
       font-family: "Georgia", serif;
       color: #2b241a;
       overflow: hidden;
@@ -72,6 +72,23 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* VR плеер */
+    #videoScreen {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    iframe {
+      width: 90vw;
+      height: 90vh;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+
   </style>
 </head>
 
@@ -88,7 +105,7 @@
     </div>
   </div>
 
-  <!-- Экран 2: приветствие и выбор версии -->
+  <!-- Экран 2: приветствие -->
   <div id="greetingScreen" class="screen" style="display:none;">
     <div class="card fade">
       <h3 id="greetingText"></h3>
@@ -107,19 +124,21 @@
     </div>
   </div>
 
+  <!-- Экран 4: плеер -->
+  <div id="videoScreen" class="screen">
+    <iframe id="ytPlayer" allow="vr; accelerometer; gyroscope; autoplay; fullscreen" allowfullscreen></iframe>
+  </div>
+
   <script>
     let currentLang = 'ru';
-    let videoUrl = '';
+    let videoId = '';
 
     function showGreeting(lang) {
       currentLang = lang;
       document.getElementById("langScreen").style.display = "none";
       document.getElementById("greetingScreen").style.display = "flex";
 
-      let title = "";
-      let greet = "";
-      let shortText = "";
-      let fullText = "";
+      let title = "", greet = "", shortText = "", fullText = "";
 
       switch (lang) {
         case "ru":
@@ -148,32 +167,31 @@
       document.getElementById("fullBtn").innerText = fullText;
 
       document.getElementById("shortBtn").onclick = function() {
-        showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
+        showInstruction("6WX-oVWf5YY");
       };
       document.getElementById("fullBtn").onclick = function() {
-        showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
+        showInstruction("T3ypZKNN7_4");
       };
     }
 
-    function showInstruction(url) {
-      videoUrl = url;
+    function showInstruction(id) {
+      videoId = id;
       document.getElementById("greetingScreen").style.display = "none";
       document.getElementById("instructionScreen").style.display = "flex";
 
-      let text = "";
-      let startText = "";
+      let text = "", startText = "";
 
       switch (currentLang) {
         case "ru":
-          text = "Инструкция: для просмотра используйте мышь или гироскоп устройства, чтобы вращать обзор. Когда будете готовы — нажмите «Начать».";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Для VR нажмите значок очков в плеере. Нажмите «Начать».";
           startText = "Начать";
           break;
         case "en":
-          text = "Instruction: use your mouse or the device gyroscope to move the view. When ready — click 'Start'.";
+          text = "Instruction: use your mouse or gyroscope to look around. For VR mode, press the headset icon in the player. Click 'Start'.";
           startText = "Start";
           break;
         case "uz":
-          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki qurilma giroskopidan foydalaning. Tayyor bo‘lsangiz, «Boshlash» tugmasini bosing.";
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. VR rejimi uchun pleerdagi ko‘zoynak belgini bosing.";
           startText = "Boshlash";
           break;
       }
@@ -182,8 +200,17 @@
       document.getElementById("startBtn").innerText = startText;
 
       document.getElementById("startBtn").onclick = function() {
-        window.open(videoUrl, '_blank');
+        showVideoPlayer(videoId);
       };
+    }
+
+    function showVideoPlayer(id) {
+      document.getElementById("instructionScreen").style.display = "none";
+      document.getElementById("videoScreen").style.display = "flex";
+
+      // Важно: используем embed-ссылку с VR/360 поддержкой
+      const embedUrl = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&showinfo=1&enablejsapi=1&playsinline=1&vr_mode=1`;
+      document.getElementById("ytPlayer").src = embedUrl;
     }
   </script>
 </body>
