@@ -8,18 +8,10 @@
     html, body {
       margin: 0;
       height: 100%;
-      background: url('https://i.imgur.com/Wy1gJ0p.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: #f5f0e6; /* однотонный светлый фон */
       font-family: "Georgia", serif;
       color: #2b241a;
       overflow: hidden;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(255, 250, 240, 0.8);
-      z-index: 0;
     }
 
     .title {
@@ -30,7 +22,6 @@
       font-size: 2rem;
       color: #3a2c1a;
       text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
-      letter-spacing: 1px;
       font-weight: bold;
       z-index: 10;
     }
@@ -41,7 +32,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 20;
     }
 
     .card {
@@ -86,66 +76,95 @@
 </head>
 
 <body>
-  <div class="overlay"></div>
-
   <div class="title">Виртуальный тур по древнему дворцу</div>
 
   <!-- Экран 1: выбор языка -->
   <div id="langScreen" class="screen fade">
     <div class="card">
       <h2>Выберите язык / Select language / Tilni tanlang</h2>
-      <button class="btn" onclick="nextScreen('ru')">Русский</button>
-      <button class="btn" onclick="nextScreen('en')">English</button>
-      <button class="btn" onclick="nextScreen('uz')">Oʻzbekcha</button>
+      <button class="btn" onclick="showGreeting('ru')">Русский</button>
+      <button class="btn" onclick="showGreeting('en')">English</button>
+      <button class="btn" onclick="showGreeting('uz')">Oʻzbekcha</button>
     </div>
   </div>
 
-  <!-- Экран 2: инструкция -->
+  <!-- Экран 2: приветствие + выбор версии -->
+  <div id="greetingScreen" class="screen" style="display:none;">
+    <div class="card fade">
+      <h3 id="greetingText"></h3>
+      <div>
+        <button class="btn" id="shortBtn"></button>
+        <button class="btn" id="fullBtn"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Экран 3: инструкция -->
   <div id="instructionScreen" class="screen" style="display:none;">
     <div class="card fade">
       <h3 id="instructionText"></h3>
-      <button class="btn" onclick="showVersionOptions()" id="viewButton">Просмотр</button>
-    </div>
-  </div>
-
-  <!-- Экран 3: выбор версии -->
-  <div id="versionScreen" class="screen" style="display:none;">
-    <div class="card fade">
-      <h3 id="versionTitle">Выберите вариант просмотра</h3>
-      <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=6WX-oVWf5YY','_blank')">Короткая версия</button>
-      <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=T3ypZKNN7_4','_blank')">Полная версия</button>
     </div>
   </div>
 
   <script>
-    function nextScreen(lang) {
-      document.getElementById("langScreen").style.display = "none";
-      document.getElementById("instructionScreen").style.display = "flex";
+    let currentLang = 'ru';
 
-      let text = "";
-      let buttonText = "";
+    function showGreeting(lang) {
+      currentLang = lang;
+      document.getElementById("langScreen").style.display = "none";
+      document.getElementById("greetingScreen").style.display = "flex";
+
+      let greet = "";
+      let shortText = "";
+      let fullText = "";
       switch (lang) {
         case "ru":
-          text = "Добро пожаловать! Этот виртуальный тур перенесёт вас в древний дворец. Нажмите «Просмотр», чтобы начать.";
-          buttonText = "Просмотр";
+          greet = "Добро пожаловать! Выберите вариант просмотра:";
+          shortText = "Короткая версия";
+          fullText = "Полная версия";
           break;
         case "en":
-          text = "Welcome! This virtual tour will take you to an ancient palace. Click 'View' to begin.";
-          buttonText = "View";
+          greet = "Welcome! Choose a version to view:";
+          shortText = "Short version";
+          fullText = "Full version";
           break;
         case "uz":
-          text = "Xush kelibsiz! Ushbu virtual sayohat sizni qadimiy saroyga olib boradi. Boshlash uchun «Ko‘rish» tugmasini bosing.";
-          buttonText = "Ko‘rish";
+          greet = "Xush kelibsiz! Ko‘rish turini tanlang:";
+          shortText = "Qisqa versiya";
+          fullText = "To‘liq versiya";
           break;
       }
 
-      document.getElementById("instructionText").innerText = text;
-      document.getElementById("viewButton").innerText = buttonText;
+      document.getElementById("greetingText").innerText = greet;
+      document.getElementById("shortBtn").innerText = shortText;
+      document.getElementById("fullBtn").innerText = fullText;
+
+      document.getElementById("shortBtn").onclick = function() {
+        openVideoAndShowInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
+      };
+      document.getElementById("fullBtn").onclick = function() {
+        openVideoAndShowInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
+      };
     }
 
-    function showVersionOptions() {
-      document.getElementById("instructionScreen").style.display = "none";
-      document.getElementById("versionScreen").style.display = "flex";
+    function openVideoAndShowInstruction(url) {
+      window.open(url, '_blank');
+      document.getElementById("greetingScreen").style.display = "none";
+      document.getElementById("instructionScreen").style.display = "flex";
+
+      let text = "";
+      switch (currentLang) {
+        case "ru":
+          text = "Инструкция: для просмотра используйте мышь или гироскоп устройства, чтобы вращать обзор. Наслаждайтесь путешествием!";
+          break;
+        case "en":
+          text = "Instruction: use your mouse or device gyroscope to move the view. Enjoy the journey!";
+          break;
+        case "uz":
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki qurilma giroskopidan foydalaning. Sayohatdan rohatlaning!";
+          break;
+      }
+      document.getElementById("instructionText").innerText = text;
     }
   </script>
 </body>
