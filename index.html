@@ -2,177 +2,144 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>360 VR Tour</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/aframe-stereo-component@^3.0.0/dist/aframe-stereo-component.min.js"></script>
-
+  <title>VR 360 Исторический Тур</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    html, body { height:100%; margin:0; background:#000; font-family: Arial, sans-serif; }
-    .title { position:absolute; top:20px; width:100%; text-align:center; color:#fff; font-size:2rem; text-shadow:0 0 10px #00ffff; z-index:30; pointer-events:none; }
-    .menu, .instruction-screen, .choice-screen { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:40; }
-    .menu-card, .instruction-card, .choice-card {
-      background:rgba(0,0,0,0.6); border:1px solid rgba(0,255,255,0.3);
-      border-radius:12px; color:#fff; padding:24px; text-align:center;
-      box-shadow:0 8px 24px rgba(0,0,0,0.6);
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: url('https://i.imgur.com/Wy1gJ0p.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: "Georgia", serif;
+      color: #2b241a;
+      overflow: hidden;
     }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 250, 240, 0.8);
+      z-index: 0;
+    }
+
+    .title {
+      position: absolute;
+      top: 25px;
+      width: 100%;
+      text-align: center;
+      font-size: 2rem;
+      color: #3a2c1a;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+      letter-spacing: 1px;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .card {
+      background: rgba(245, 237, 220, 0.95);
+      border: 2px solid #a88f61;
+      border-radius: 12px;
+      padding: 28px 34px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+      max-width: 85%;
+    }
+
     .btn {
-      background:rgba(0,255,255,0.15); color:#fff;
-      border:1px solid rgba(0,255,255,0.3); padding:10px 16px;
-      border-radius:10px; cursor:pointer; font-weight:700; margin:6px;
-      transition:0.2s;
+      display: inline-block;
+      background: linear-gradient(to bottom, #c1a675, #a88f61);
+      color: #2b241a;
+      border: 1px solid #7b6643;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 8px;
+      transition: 0.3s;
+      font-size: 1rem;
+      box-shadow: 0 3px 4px rgba(0,0,0,0.2);
     }
-    .btn:hover { background:rgba(0,255,255,0.25); color:#000; }
-    #playerContainer { position:absolute; inset:0; display:none; background:#000; z-index:1; }
-    .top-ui { position:absolute; right:10px; top:10px; z-index:50; display:flex; gap:8px; }
-    .ui-btn { background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:8px; cursor:pointer; }
+
+    .btn:hover {
+      background: linear-gradient(to bottom, #d4bc8a, #b5996b);
+      transform: translateY(-2px);
+    }
+
+    .preview {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 8px;
+      margin: 12px auto;
+      display: block;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      border: 2px solid #a88f61;
+    }
+
+    .fade {
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
+
 <body>
-  <div class="title">360 VR Tour</div>
+  <div class="overlay"></div>
 
-  <!-- Главное меню -->
-  <div class="menu" id="mainMenu">
-    <div class="menu-card">
-      <div>Tilni tanlang / Выберите язык</div>
-      <button class="btn" onclick="selectLang('ru')">🇷🇺 Рус</button>
-      <button class="btn" onclick="selectLang('en')">🇬🇧 Eng</button>
-      <button class="btn" onclick="selectLang('uz')">🇺🇿 O‘z</button>
+  <div class="title">Виртуальный тур по древнему дворцу</div>
+
+  <!-- Экран 1: выбор языка -->
+  <div id="langScreen" class="screen fade">
+    <div class="card">
+      <h2>Выберите язык / Select language</h2>
+      <button class="btn" onclick="nextScreen('ru')">Русский</button>
+      <button class="btn" onclick="nextScreen('en')">English</button>
     </div>
   </div>
 
-  <!-- Инструкция -->
-  <div class="instruction-screen" id="instructionScreen" style="display:none;">
-    <div class="instruction-card">
-      <h3 id="instructionTitle">Инструкция</h3>
-      <p id="instructionText"></p>
-      <div>
-        <button class="btn" onclick="backToMenu()">◀ Назад</button>
-        <button class="btn" id="watchBtn" onclick="showChoice()">▶ Посмотреть</button>
-      </div>
+  <!-- Экран 2: инструкция -->
+  <div id="instructionScreen" class="screen" style="display:none;">
+    <div class="card fade">
+      <h3 id="instructionText">Нажмите «Просмотр», чтобы начать тур</h3>
+      <img class="preview" src="https://i.imgur.com/hIgXSPN.jpeg" alt="Превью видео">
+      <button class="btn" onclick="showVersionOptions()">Просмотр</button>
     </div>
   </div>
 
-  <!-- Экран выбора: YouTube или VR -->
-  <div class="choice-screen" id="choiceScreen" style="display:none;">
-    <div class="choice-card">
-      <h3>Выберите способ просмотра</h3>
-      <p>Можно открыть видео прямо на YouTube или во встроенном VR-плеере.</p>
-      <div>
-        <button class="btn" onclick="openYouTube()">📺 Смотреть на YouTube</button>
-        <button class="btn" onclick="openPlayer()">🕶 Смотреть в VR-плеере</button>
-      </div>
-      <div style="margin-top:10px;">
-        <button class="btn" onclick="backToInstruction()">◀ Назад</button>
-      </div>
+  <!-- Экран 3: выбор версии -->
+  <div id="versionScreen" class="screen" style="display:none;">
+    <div class="card fade">
+      <h3>Выберите вариант просмотра</h3>
+      <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=6WX-oVWf5YY','_blank')">Короткая версия</button>
+      <button class="btn" onclick="window.open('https://www.youtube.com/watch?v=T3ypZKNN7_4','_blank')">Полная версия</button>
     </div>
-  </div>
-
-  <!-- VR-плеер -->
-  <div id="playerContainer">
-    <div class="top-ui">
-      <button class="ui-btn" onclick="toggleMute()" id="muteBtn">🔈 Mute</button>
-      <button class="ui-btn" onclick="enterCardboard()">📱 VR</button>
-      <button class="ui-btn" onclick="exitPlayer()">✕</button>
-    </div>
-
-    <a-scene id="aframeScene" embedded vr-mode-ui="enabled: true" background="color:#000" renderer="antialias:true;">
-      <a-assets>
-        <video id="vrVideo" src="https://files.catbox.moe/hqn35y.mp4" crossorigin="anonymous" playsinline webkit-playsinline preload="auto"></video>
-      </a-assets>
-
-      <a-entity id="cameraRig">
-        <a-entity id="camera" camera look-controls="touchEnabled:true; enabled:true;" position="0 1.6 0"></a-entity>
-      </a-entity>
-
-      <a-videosphere id="videoSphere" src="#vrVideo" rotation="0 -90 0"></a-videosphere>
-    </a-scene>
   </div>
 
   <script>
-    const texts = {
-      ru: {
-        title: "Инструкция",
-        instr: "Поворачивайте телефон или двигайте пальцем по экрану, чтобы осмотреться. Нажмите кнопку «VR» для входа в режим Cardboard.",
-        watch: "Посмотреть"
-      },
-      en: {
-        title: "Instructions",
-        instr: "Move your phone or drag the screen to look around. Tap the 'VR' button to enter Cardboard mode.",
-        watch: "Watch"
-      },
-      uz: {
-        title: "Ko‘rsatmalar",
-        instr: "Telefonni aylantiring yoki barmog‘ingiz bilan ekran bo‘ylab aylantiring. 'VR' tugmasini bosing – Cardboard rejimiga o‘tish uchun.",
-        watch: "Ko‘rish"
-      }
-    };
-
-    let currentLang = 'ru';
-
-    function selectLang(lang){
-      currentLang = lang;
-      document.getElementById('instructionTitle').innerText = texts[lang].title;
-      document.getElementById('instructionText').innerText = texts[lang].instr;
-      document.getElementById('watchBtn').innerText = texts[lang].watch;
-      document.getElementById('mainMenu').style.display = 'none';
-      document.getElementById('instructionScreen').style.display = 'flex';
+    function nextScreen(lang) {
+      document.getElementById("langScreen").style.display = "none";
+      document.getElementById("instructionScreen").style.display = "flex";
+      const text = lang === "en"
+        ? "Click “View” to start the tour"
+        : "Нажмите «Просмотр», чтобы начать тур";
+      document.getElementById("instructionText").innerText = text;
     }
 
-    function backToMenu(){
-      document.getElementById('instructionScreen').style.display = 'none';
-      document.getElementById('mainMenu').style.display = 'flex';
-    }
-
-    function showChoice(){
-      document.getElementById('instructionScreen').style.display = 'none';
-      document.getElementById('choiceScreen').style.display = 'flex';
-    }
-
-    function backToInstruction(){
-      document.getElementById('choiceScreen').style.display = 'none';
-      document.getElementById('instructionScreen').style.display = 'flex';
-    }
-
-    function openYouTube(){
-      window.open("https://www.youtube.com/watch?v=6WX-oVWf5YY", "_blank");
-    }
-
-    async function openPlayer(){
-      document.getElementById('choiceScreen').style.display = 'none';
-      document.getElementById('playerContainer').style.display = 'block';
-
-      const vrVideo = document.getElementById('vrVideo');
-      vrVideo.loop = true;
-      vrVideo.muted = false;
-      vrVideo.currentTime = 0;
-      try {
-        await vrVideo.play();
-      } catch(e){
-        console.warn('Autoplay blocked, showing controls');
-        vrVideo.setAttribute('controls', 'true');
-      }
-
-      const cam = document.getElementById('camera');
-      cam.setAttribute('look-controls', 'touchEnabled:true; magicWindowTrackingEnabled:true; enabled:true');
-    }
-
-    function exitPlayer(){
-      const vid = document.getElementById('vrVideo');
-      vid.pause();
-      document.getElementById('playerContainer').style.display = 'none';
-      document.getElementById('mainMenu').style.display = 'flex';
-    }
-
-    function enterCardboard(){
-      const scene = document.querySelector('a-scene');
-      if (scene) scene.enterVR();
-    }
-
-    function toggleMute(){
-      const vid = document.getElementById('vrVideo');
-      vid.muted = !vid.muted;
-      document.getElementById('muteBtn').innerText = vid.muted ? '🔇 Muted' : '🔈 Unmuted';
+    function showVersionOptions() {
+      document.getElementById("instructionScreen").style.display = "none";
+      document.getElementById("versionScreen").style.display = "flex";
     }
   </script>
 </body>
