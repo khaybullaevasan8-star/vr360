@@ -1,29 +1,137 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L9YM4DBTQ1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L9YM4DBTQ1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-L9YM4DBTQ1');
+  </script>
 
-  gtag('config', 'G-L9YM4DBTQ1');
-</script>
   <meta charset="utf-8" />
-  <title>VR 360 Player — тест</title>
+  <title>VR Tour — Ak Saray 360°</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-stereo-component@0.7.0/dist/aframe-stereo-component.min.js"></script>
+
   <style>
-    body{margin:0;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;}
-    button{background:#00b894;border:none;color:#fff;padding:10px 18px;border-radius:8px;cursor:pointer;margin:8px}
-    #message{max-width:760px;margin:12px;padding:8px;color:#ffd;}
-    a-scene{position:fixed;inset:0;width:100%;height:100%}
-    #controls{z-index:20;position:relative}
+    body {
+      margin: 0;
+      background: #b36b4a; /* тёплый цвет старого кирпича */
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      text-align: center;
+    }
+
+    header#topHeader {
+      position: relative;
+      width: 100%;
+      text-align: center;
+      background: linear-gradient(180deg, #2c3e50 0%, #7f8c8d 100%);
+      padding: 20px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      animation: fadeInHeader 1.5s ease-out;
+    }
+
+    #logo {
+      width: 280px;
+      max-width: 70%;
+      animation: floatLogo 6s ease-in-out infinite;
+    }
+
+    #topHeader h1 {
+      font-size: 1.6em;
+      margin-top: 10px;
+      color: #f5f5f5;
+      text-shadow: 0 0 8px rgba(255,255,255,0.6);
+    }
+
+    @keyframes fadeInHeader {
+      from {opacity: 0; transform: translateY(-40px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes floatLogo {
+      0%, 100% {transform: translateY(0);}
+      50% {transform: translateY(-6px);}
+    }
+
+    #controls {
+      margin-top: 30px;
+      z-index: 20;
+      position: relative;
+    }
+
+    button {
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+      border: none;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #27ae60, #1e8449);
+    }
+
+    #message {
+      max-width: 760px;
+      margin: 12px auto;
+      padding: 8px;
+      color: #ffe;
+      display: none;
+    }
+
+    a-scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    /* Контролы плеера */
+    #playerControls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 9999;
+    }
+
+    #playerControls button {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #ccc;
+      padding: 10px 16px;
+      border-radius: 50%;
+      font-size: 18px;
+    }
+
+    #playerControls button:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
   </style>
 </head>
 <body>
+
+  <!-- ШАПКА -->
+  <header id="topHeader">
+    <img src="logo.png" alt="VR Ak-Saray" id="logo">
+    <h1>VR Tour — Ak Saray 360°</h1>
+  </header>
+
+  <!-- КНОПКИ ВЫБОРА ЯЗЫКА -->
   <div id="controls">
     <div id="langSelect">
       <h2>Выберите язык / Tilni tanlang / Choose language</h2>
@@ -35,94 +143,80 @@
     <div id="info" style="display:none;">
       <p id="text"></p>
       <button id="enterVR">Смотреть видео</button>
-      <div id="message" style="display:none;"></div>
+      <div id="message"></div>
       <div style="margin-top:8px">
         <button id="openDirect" style="display:none;">Открыть видео в новой вкладке</button>
       </div>
     </div>
   </div>
 
-  <a-scene id="scene" embedded vr-mode-ui="enabled:true" style="display:none;">
+  <!-- СЦЕНА VR -->
+  <a-scene id="scene" embedded vr-mode-ui="enabled:true">
     <a-assets>
       <video id="vrvideo" loop crossorigin="anonymous" playsinline webkit-playsinline preload="auto"
-             src="https://ia600602.us.archive.org/34/items/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4"></video>
+        src="https://ia600602.us.archive.org/34/items/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4"></video>
     </a-assets>
-
     <a-videosphere src="#vrvideo" stereo="side-by-side"></a-videosphere>
   </a-scene>
 
-<script>
-const VIDEO_URL = "https://files.catbox.moe/hqn35y.mp4";
+  <!-- КОНТРОЛЫ PLAY/PAUSE -->
+  <div id="playerControls" style="display:none;">
+    <button id="playPauseBtn">⏸</button>
+  </div>
 
-const langText = {
-  ru: "Сейчас вы увидите 360° видео. Вращайте телефон или двигайте пальцем, чтобы осмотреться вокруг. Для Cardboard нажмите иконку очков.",
-  uz: "Hozir siz 360° videoni ko‘rasiz. Telefonni aylantiring yoki barmog‘ingiz bilan atrofga qarang. Cardboard uchun ko‘zoynak belgisini bosing.",
-  en: "You are about to watch a 360° video. Move your phone or drag to look around. Tap the headset icon for Cardboard mode."
-};
+  <script>
+    const VIDEO_URL = "https://ia600602.us.archive.org/34/items/video_2025-10-12_10-07-40_injected/video_2025-10-12_10-07-40_injected.mp4";
+    const langText = {
+      ru: "Сейчас вы увидите 360° видео. Вращайте телефон или двигайте пальцем, чтобы осмотреться вокруг. Для Cardboard нажмите иконку очков.",
+      uz: "Hozir siz 360° videoni ko‘rasiz. Telefonni aylantiring yoki barmog‘ingiz bilan atrofga qarang. Cardboard uchun ko‘zoynak belgisini bosing.",
+      en: "You are about to watch a 360° video. Move your phone or drag to look around. Tap the headset icon for Cardboard mode."
+    };
 
-function setLang(lang){
-  document.getElementById('langSelect').style.display='none';
-  document.getElementById('info').style.display='block';
-  document.getElementById('text').textContent = langText[lang] || langText.en;
-  document.getElementById('enterVR').textContent = (lang==='ru') ? 'Смотреть видео' : (lang==='uz') ? 'Videoni tomosha qilish' : 'Watch video';
-}
+    function setLang(lang){
+      document.getElementById('langSelect').style.display='none';
+      document.getElementById('info').style.display='block';
+      document.getElementById('text').textContent = langText[lang] || langText.en;
+      document.getElementById('enterVR').textContent =
+        (lang==='ru') ? 'Смотреть видео' :
+        (lang==='uz') ? 'Videoni tomosha qilish' :
+        'Watch video';
+    }
 
-// Обработчик: кнопка "Смотреть видео"
-document.getElementById('enterVR').addEventListener('click', async () => {
-  // Показываем сцену
-  document.getElementById('info').style.display='none';
-  document.getElementById('scene').style.display='block';
+    const video = document.getElementById('vrvideo');
+    const scene = document.getElementById('scene');
+    const playerControls = document.getElementById('playerControls');
+    const playPauseBtn = document.getElementById('playPauseBtn');
 
-  const video = document.getElementById('vrvideo');
+    document.getElementById('enterVR').addEventListener('click', async () => {
+      document.getElementById('info').style.display='none';
+      scene.style.display='block';
+      playerControls.style.display='flex';
 
-  // Попытка включить muted + play (больше шансов на автозапуск)
-  try {
-    video.muted = true; // убирать звук при старте — помогает автозапуску
-    await video.play();
-    console.log("Видео запущено (muted=true).");
-  } catch (err) {
-    console.error("Ошибка при попытке play():", err);
-    // Покажем кнопку открыть в новой вкладке
-    showMessage("Не удалось автоматически воспроизвести видео в текущем окне. Нажмите «Открыть видео в новой вкладке».", true);
-    document.getElementById('openDirect').style.display = 'inline-block';
-  }
+      try {
+        video.muted = false;
+        await video.play();
+      } catch (err) {
+        console.error("Ошибка при запуске видео:", err);
+        document.getElementById('message').style.display = 'block';
+        document.getElementById('message').textContent = 'Не удалось автоматически воспроизвести видео. Нажмите «Открыть видео в новой вкладке».';
+        document.getElementById('openDirect').style.display = 'inline-block';
+      }
+    });
 
-  // Если видео завершает загрузку с ошибкой — слушаем событие error
-  video.addEventListener('error', (e) => {
-    console.error("Video element error:", e, video.error);
-    let msg = "Ошибка загрузки видео — возможно, сервер блокирует доступ (CORS) или файл недоступен.";
-    showMessage(msg, true);
-    document.getElementById('openDirect').style.display = 'inline-block';
-  });
+    playPauseBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playPauseBtn.textContent = '⏸';
+      } else {
+        video.pause();
+        playPauseBtn.textContent = '▶';
+      }
+    });
 
-  // Дополнительно: слушаем loadeddata чтобы понимать, что поток доступен
-  video.addEventListener('loadeddata', () => {
-    console.log("Событие loadeddata — видеопоток доступен.");
-    hideMessage();
-  });
-});
+    document.getElementById('openDirect').addEventListener('click', () => {
+      window.open(VIDEO_URL, '_blank', 'noopener');
+    });
+  </script>
 
-// Кнопка открыть напрямую
-document.getElementById('openDirect').addEventListener('click', () => {
-  window.open(VIDEO_URL, '_blank', 'noopener');
-});
-
-function showMessage(text, showOpen) {
-  const m = document.getElementById('message');
-  m.style.display = 'block';
-  m.textContent = text;
-  if(!showOpen) document.getElementById('openDirect').style.display='none';
-}
-
-function hideMessage(){
-  const m = document.getElementById('message');
-  m.style.display = 'none';
-}
-
-// Подсказка по языку
-document.getElementById('langSelect').style.display='block';
-</script>
 </body>
 </html>
-
-
