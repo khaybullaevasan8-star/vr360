@@ -54,7 +54,6 @@
       transform: translateY(-2px);
     }
 
-    /* Стиль для слайдера до/после */
     .slider-container {
       position: relative;
       width: 90%;
@@ -119,8 +118,8 @@
         <button class="btn" id="shortBtn"></button>
         <button class="btn" id="fullBtn"></button>
       </div>
-      <button class="btn" onclick="showPhotoScreen()">Фото реконструкции</button>
-      <button class="btn" onclick="goBack('langScreen')">Назад</button>
+      <button class="btn" id="photoBtn"></button>
+      <button class="btn" id="backFromGreetingBtn"></button>
     </div>
   </div>
 
@@ -130,19 +129,19 @@
       <h2 id="instructionTitle"></h2>
       <h3 id="instructionText"></h3>
       <button class="btn" id="startBtn" style="margin-top:20px;"></button>
-      <button class="btn" onclick="goBack('greetingScreen')">Назад</button>
+      <button class="btn" id="backFromInstructionBtn"></button>
     </div>
   </div>
 
-  <!-- Экран фото реконструкции (до/после) -->
+  <!-- Экран фото реконструкции -->
   <div id="photoScreen" class="screen" style="display:none;">
     <div class="slider-container" id="sliderContainer">
       <img src="svayp1.jpg" alt="Разрушенный Ак Сарай" class="before-image">
       <img src="svayp2.jpg" alt="Реконструированный Ак Сарай" class="after-image" id="afterImage">
       <div class="slider-handle" id="sliderHandle"></div>
     </div>
-    <div class="photo-caption">Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай</div>
-    <button class="btn" style="margin-top:20px;" onclick="goBack('greetingScreen')">Назад</button>
+    <div class="photo-caption" id="photoCaption"></div>
+    <button class="btn" style="margin-top:20px;" id="backFromPhotoBtn"></button>
   </div>
 
   <script>
@@ -164,71 +163,90 @@
       currentLang = lang;
       showScreen("greetingScreen");
 
-      let greet, shortText, fullText;
+      let greet, shortText, fullText, photoText, backText, photoCaption;
       switch (lang) {
         case "ru":
           greet = "Выберите вариант просмотра:";
           shortText = "Короткая версия";
           fullText = "Полная версия";
+          photoText = "Фото реконструкции";
+          backText = "Назад";
+          photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
           break;
         case "en":
           greet = "Choose a version to view:";
           shortText = "Short version";
           fullText = "Full version";
+          photoText = "Reconstruction photo";
+          backText = "Back";
+          photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
           break;
         case "uz":
           greet = "Ko‘rish turini tanlang:";
           shortText = "Qisqa versiya";
           fullText = "To‘liq versiya";
+          photoText = "Qayta tiklangan surat";
+          backText = "Ortga";
+          photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
           break;
       }
 
       document.getElementById("greetingText").innerText = greet;
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
+      document.getElementById("photoBtn").innerText = photoText;
+      document.getElementById("backFromGreetingBtn").innerText = backText;
+      document.getElementById("backFromInstructionBtn").innerText = backText;
+      document.getElementById("backFromPhotoBtn").innerText = backText;
+      document.getElementById("photoCaption").innerText = photoCaption;
 
       document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
       document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
+      document.getElementById("photoBtn").onclick = showPhotoScreen;
+      document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
     }
 
     function showInstruction(url) {
       videoUrl = url;
       showScreen("instructionScreen");
 
-      let title, text, startText;
+      let title, text, startText, backText;
       switch (currentLang) {
         case "ru":
           title = "Виртуальный тур по древнему городу";
           text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
           startText = "Начать";
+          backText = "Назад";
           break;
         case "en":
           title = "Virtual tour of the ancient city";
           text = "Instruction: use your mouse or gyroscope to move the view. Click 'Start' to open the video.";
           startText = "Start";
+          backText = "Back";
           break;
         case "uz":
           title = "Qadimiy shahar bo‘ylab virtual sayohat";
           text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. 'Boshlash' tugmasini bosing.";
           startText = "Boshlash";
+          backText = "Ortga";
           break;
       }
 
       document.getElementById("instructionTitle").innerText = title;
       document.getElementById("instructionText").innerText = text;
       document.getElementById("startBtn").innerText = startText;
+      document.getElementById("backFromInstructionBtn").innerText = backText;
       document.getElementById("startBtn").onclick = () => {
         window.open(videoUrl, "_blank");
       };
+      document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
     }
 
-    // Показ экрана фото реконструкции
     function showPhotoScreen() {
       showScreen("photoScreen");
       initSlider();
     }
 
-    // Функция инициализации слайдера до/после
     function initSlider() {
       const container = document.getElementById('sliderContainer');
       const afterImage = document.getElementById('afterImage');
