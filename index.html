@@ -21,6 +21,7 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      background: #f5f0e6;
     }
 
     .card {
@@ -52,6 +53,50 @@
       background: linear-gradient(to bottom, #d4bc8a, #b5996b);
       transform: translateY(-2px);
     }
+
+    /* Стиль для слайдера до/после */
+    .slider-container {
+      position: relative;
+      width: 90%;
+      max-width: 800px;
+      height: 60vh;
+      overflow: hidden;
+      border: 3px solid #a88f61;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+    }
+
+    .slider-container img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      top: 0;
+      left: 0;
+    }
+
+    .slider-container .after-image {
+      clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+      transition: clip-path 0.1s;
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 4px;
+      height: 100%;
+      background: #a88f61;
+      cursor: ew-resize;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .photo-caption {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2b241a;
+    }
   </style>
 </head>
 
@@ -74,6 +119,8 @@
         <button class="btn" id="shortBtn"></button>
         <button class="btn" id="fullBtn"></button>
       </div>
+      <button class="btn" onclick="showPhotoScreen()">Фото реконструкции</button>
+      <button class="btn" onclick="goBack('langScreen')">Назад</button>
     </div>
   </div>
 
@@ -82,8 +129,20 @@
     <div class="card">
       <h2 id="instructionTitle"></h2>
       <h3 id="instructionText"></h3>
+      <button class="btn" id="startBtn" style="margin-top:20px;"></button>
+      <button class="btn" onclick="goBack('greetingScreen')">Назад</button>
     </div>
-    <button class="btn" id="startBtn" style="margin-top:20px;"></button>
+  </div>
+
+  <!-- Экран фото реконструкции (до/после) -->
+  <div id="photoScreen" class="screen" style="display:none;">
+    <div class="slider-container" id="sliderContainer">
+      <img src="svayp1.jpg" alt="Разрушенный Ак Сарай" class="before-image">
+      <img src="svayp2.jpg" alt="Реконструированный Ак Сарай" class="after-image" id="afterImage">
+      <div class="slider-handle" id="sliderHandle"></div>
+    </div>
+    <div class="photo-caption">Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай</div>
+    <button class="btn" style="margin-top:20px;" onclick="goBack('greetingScreen')">Назад</button>
   </div>
 
   <script>
@@ -95,6 +154,10 @@
       document.getElementById(currentScreen).style.display = "none";
       document.getElementById(id).style.display = "flex";
       currentScreen = id;
+    }
+
+    function goBack(target) {
+      showScreen(target);
     }
 
     function showGreeting(lang) {
@@ -157,6 +220,38 @@
       document.getElementById("startBtn").onclick = () => {
         window.open(videoUrl, "_blank");
       };
+    }
+
+    // Показ экрана фото реконструкции
+    function showPhotoScreen() {
+      showScreen("photoScreen");
+      initSlider();
+    }
+
+    // Функция инициализации слайдера до/после
+    function initSlider() {
+      const container = document.getElementById('sliderContainer');
+      const afterImage = document.getElementById('afterImage');
+      const handle = document.getElementById('sliderHandle');
+      let isDragging = false;
+
+      function setPosition(x) {
+        const rect = container.getBoundingClientRect();
+        let pos = Math.max(0, Math.min(x - rect.left, rect.width));
+        const percent = (pos / rect.width) * 100;
+        afterImage.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
+        handle.style.left = `${percent}%`;
+      }
+
+      handle.addEventListener('mousedown', () => isDragging = true);
+      window.addEventListener('mouseup', () => isDragging = false);
+      window.addEventListener('mousemove', (e) => { if(isDragging) setPosition(e.clientX); });
+
+      handle.addEventListener('touchstart', () => isDragging = true);
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('touchmove', (e) => { if(isDragging) setPosition(e.touches[0].clientX); });
+
+      setPosition(container.getBoundingClientRect().width / 2);
     }
   </script>
 </body>
