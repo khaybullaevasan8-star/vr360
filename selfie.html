@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VR Selfie</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    video, canvas {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      background: #8b6f47;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover { background: #a1825a; }
+  </style>
+</head>
+<body>
+  <h2>Селфи в историческом городе</h2>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="output"></canvas>
+  <br>
+  <button id="startRecord">Начать запись</button>
+  <button id="stopRecord" disabled>Остановить</button>
+  <button id="downloadBtn" style="display:none;">Скачать видео</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+    const bg = new Image();
+    bg.src = 'ponorama1.jpg'; // Фон (должен быть в той же папке)
+
+    let recorder, chunks = [];
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+      video.srcObject = stream;
+      const selfieSegmentation = new SelfieSegmentation({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}` });
+      selfieSegmentation.setOptions({ modelSelection: 1 });
+      selfieSegmentation.onResults(onResults);
+
+      const camera = new Camera(video, {
+        onFrame: async () => {
+          await selfieSegmentation.send({ image: video });
+        },
+        width: 480,
+        height: 360
+      });
+      camera.start();
+    });
+
+    function onResults(results) {
+      canvas.width = results.image.width;
+      canvas.height = results.image.height;
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    document.getElementById('startRecord').onclick = () => {
+      chunks = [];
+      const stream = canvas.captureStream(30);
+      const mime = MediaRecorder.isTypeSupported('video/webm; codecs=vp9') ? 'video/webm; codecs=vp9' : 'video/webm';
+      recorder = new MediaRecorder(stream, { mimeType: mime });
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = saveVideo;
+      recorder.start();
+      document.getElementById('startRecord').disabled = true;
+      document.getElementById('stopRecord').disabled = false;
+    };
+
+    document.getElementById('stopRecord').onclick = () => {
+      recorder.stop();
+      document.getElementById('startRecord').disabled = false;
+      document.getElementById('stopRecord').disabled = true;
+    };
+
+    function saveVideo() {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'selfie_historic_city.webm';
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById('downloadBtn').style.display = 'inline-block';
+    }
+  </script>
+</body>
+</html>
+```
+
+---
+
+Теперь просто скопируйте каждый блок в отдельный файл — `index.html` и `selfie.html`, и положите изображения (`svayp1.jpg`, `svayp2.jpg`, `ponorama1.jpg`) рядом с ними.
