@@ -13,6 +13,7 @@
       color: #2b241a;
       overflow: hidden;
     }
+
     .screen {
       position: absolute;
       inset: 0;
@@ -21,33 +22,38 @@
       justify-content: center;
       flex-direction: column;
       background: #f5f0e6;
-      padding: 18px;
     }
+
     .card {
       background: rgba(245, 237, 220, 0.95);
       border: 2px solid #a88f61;
       border-radius: 12px;
-      padding: 24px 28px;
+      padding: 28px 34px;
       text-align: center;
       box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      max-width: 900px;
-      width: 100%;
+      max-width: 85%;
     }
+
     .btn {
       display: inline-block;
       background: linear-gradient(to bottom, #c1a675, #a88f61);
       color: #2b241a;
       border: 1px solid #7b6643;
-      padding: 10px 18px;
+      padding: 10px 20px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
       margin: 8px;
-      transition: 0.18s;
+      transition: 0.3s;
       font-size: 1rem;
-      box-shadow: 0 3px 4px rgba(0,0,0,0.15);
+      box-shadow: 0 3px 4px rgba(0,0,0,0.2);
     }
-    .btn:hover { transform: translateY(-2px); }
+
+    .btn:hover {
+      background: linear-gradient(to bottom, #d4bc8a, #b5996b);
+      transform: translateY(-2px);
+    }
+
     .slider-container {
       position: relative;
       width: 90%;
@@ -57,21 +63,22 @@
       border: 3px solid #a88f61;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      background: #ddd;
     }
+
     .slider-container img {
       position: absolute;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      top: 0; left: 0;
-      user-select: none;
-      -webkit-user-drag: none;
+      top: 0;
+      left: 0;
     }
+
     .slider-container .after-image {
       clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-      transition: clip-path 0.08s;
+      transition: clip-path 0.1s;
     }
+
     .slider-handle {
       position: absolute;
       top: 0;
@@ -81,355 +88,287 @@
       background: #a88f61;
       cursor: ew-resize;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      touch-action: none;
     }
-    .photo-caption { text-align:center; margin-top:14px; font-weight:bold; color:#2b241a; max-width:90%; }
 
-    /* selfie */
-    #selfieScreen .card { max-width:980px; }
-    video, canvas { width: 100%; border-radius: 12px; background:#111; display:block; }
-    .controls { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
-    .small-btn { padding:8px 12px; font-size:0.95rem; }
-    .hint { color:#6b5a3b; margin-top:10px; font-size:0.95rem; text-align:center; }
-    .preview-img { max-width:240px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.25); display:block; margin:10px auto; }
-    .row { display:flex; gap:10px; justify-content:center; margin-top:10px; flex-wrap:wrap; }
-    /* responsive */
-    @media (max-width:640px){
-      .card { padding:16px; }
-      .slider-container { height: 50vh; }
+    .photo-caption {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2b241a;
+    }
+
+    canvas {
+      border-radius: 12px;
+      max-width: 100%;
+    }
+
+    .hint {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: #4a3f2c;
+    }
+
+    .preview-img {
+      margin-top: 15px;
+      border: 2px solid #a88f61;
+      border-radius: 10px;
+      max-width: 90%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
   </style>
-
-  <!-- Mediapipe -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 </head>
-
 <body>
-  <!-- LANG SCREEN -->
+  <!-- Экран выбора языка -->
   <div id="langScreen" class="screen">
     <div class="card">
       <h2>Выберите язык / Select language / Tilni tanlang</h2>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="showGreeting('ru')">Русский</button>
-        <button class="btn" onclick="showGreeting('en')">English</button>
-        <button class="btn" onclick="showGreeting('uz')">Oʻzbekcha</button>
-      </div>
-      <p class="hint">После выбора языка появится кнопка «Сделать селфи в историческом городе».</p>
+      <button class="btn" onclick="showGreeting('ru')">Русский</button>
+      <button class="btn" onclick="showGreeting('en')">English</button>
+      <button class="btn" onclick="showGreeting('uz')">O‘zbekcha</button>
     </div>
   </div>
 
-  <!-- GREETING -->
+  <!-- Экран приветствия -->
   <div id="greetingScreen" class="screen" style="display:none;">
     <div class="card">
       <h3 id="greetingText"></h3>
       <div>
         <button class="btn" id="shortBtn"></button>
         <button class="btn" id="fullBtn"></button>
-        <button class="btn" id="photoBtn"></button>
       </div>
-
-      <div style="margin-top:12px">
-        <button class="btn" id="selfieBtn"></button>
-      </div>
-
-      <div style="margin-top:12px">
-        <button class="btn" id="backFromGreetingBtn"></button>
-      </div>
+      <button class="btn" id="photoBtn"></button>
+      <button class="btn" id="selfieBtn"></button>
+      <button class="btn" id="backFromGreetingBtn"></button>
     </div>
   </div>
 
-  <!-- INSTRUCTION -->
+  <!-- Экран инструкции -->
   <div id="instructionScreen" class="screen" style="display:none;">
     <div class="card">
       <h2 id="instructionTitle"></h2>
       <h3 id="instructionText"></h3>
-      <div style="margin-top:16px">
-        <button class="btn" id="startBtn"></button>
-        <button class="btn" id="backFromInstructionBtn"></button>
-      </div>
+      <button class="btn" id="startBtn" style="margin-top:20px;"></button>
+      <button class="btn" id="backFromInstructionBtn"></button>
     </div>
   </div>
 
-  <!-- PHOTO SLIDER -->
+  <!-- Экран фото реконструкции -->
   <div id="photoScreen" class="screen" style="display:none;">
-    <div class="card" style="width:100%;">
-      <div class="slider-container" id="sliderContainer" aria-label="Слайдер до/после">
-        <img src="svayp1.jpg" alt="До" class="before-image" draggable="false">
-        <img src="svayp2.jpg" alt="После" class="after-image" id="afterImage" draggable="false">
-        <div class="slider-handle" id="sliderHandle" role="slider" aria-label="Сравнение" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></div>
-      </div>
-      <div class="photo-caption" id="photoCaption"></div>
-      <div style="margin-top:12px">
-        <button class="btn" id="backFromPhotoBtn"></button>
-      </div>
+    <div class="slider-container" id="sliderContainer">
+      <img src="svayp1.jpg" alt="Разрушенный Ак Сарай" class="before-image">
+      <img src="svayp2.jpg" alt="Реконструированный Ак Сарай" class="after-image" id="afterImage">
+      <div class="slider-handle" id="sliderHandle"></div>
     </div>
+    <div class="photo-caption" id="photoCaption"></div>
+    <button class="btn" style="margin-top:20px;" id="backFromPhotoBtn"></button>
   </div>
 
-  <!-- SELFIE SCREEN -->
+  <!-- Экран селфи -->
   <div id="selfieScreen" class="screen" style="display:none;">
-    <div class="card">
-      <h2 id="selfieTitle"></h2>
-      <p class="hint" id="cameraHint"></p>
-
-      <div style="width:100%; max-width:820px; margin:0 auto;">
-        <video id="camera" autoplay playsinline muted></video>
-        <canvas id="output" style="margin-top:12px;"></canvas>
-
-        <div class="row" style="justify-content:center;">
-          <button class="btn small-btn" id="takePhotoBtn">📸 Сделать фото</button>
-          <button class="btn small-btn" id="savePhotoBtn" style="display:none;">💾 Сохранить</button>
-          <button class="btn small-btn" id="shareInstagramBtn" style="display:none;">📸 Открыть Instagram</button>
-          <button class="btn small-btn" id="openYouTubeBtn" style="display:none;">▶️ Открыть YouTube</button>
-          <button class="btn small-btn" id="backFromSelfieBtn">⬅️ Назад</button>
-        </div>
-
-        <img id="previewImg" class="preview-img" style="display:none;" alt="Preview">
-        <p class="hint" id="cameraPermissionHint" style="display:block;"></p>
+    <div class="card" style="max-width:960px;">
+      <h2 id="selfieTitle">Сделать селфи в историческом городе</h2>
+      <p class="hint" id="cameraHint">Если камера не включается — разрешите доступ к камере.</p>
+      <canvas id="output"></canvas>
+      <video id="camera" autoplay playsinline muted style="display:none;"></video>
+      <div>
+        <button class="btn" id="takePhotoBtn">📸 Сделать фото</button>
+        <button class="btn" id="savePhotoBtn" style="display:none;">💾 Сохранить</button>
+        <button class="btn" id="shareInstagramBtn" style="display:none;">📸 Instagram</button>
+        <button class="btn" id="openYouTubeBtn" style="display:none;">▶️ YouTube</button>
+        <button class="btn" id="backFromSelfieBtn">⬅️ Назад</button>
       </div>
+      <img id="previewImg" class="preview-img" style="display:none;" alt="Preview">
     </div>
   </div>
 
-<script>
-/* ---------------- NAVIGATION & TEXT ---------------- */
-let currentLang = 'ru', currentScreen = 'langScreen', videoUrl='';
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 
-function showScreen(id){
-  document.getElementById(currentScreen).style.display='none';
-  document.getElementById(id).style.display='flex';
-  currentScreen = id;
-}
+  <script>
+    let currentLang = 'ru';
+    let videoUrl = '';
+    let currentScreen = 'langScreen';
 
-function showGreeting(lang){
-  currentLang = lang;
-  showScreen('greetingScreen');
-
-  const texts = {
-    ru: {
-      greet: 'Выберите вариант просмотра:',
-      short: 'Короткая версия',
-      full: 'Полная версия',
-      photo: 'Фото реконструкции',
-      selfie: 'Сделать селфи в историческом городе',
-      back: 'Назад',
-      caption: 'Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай',
-      selfieTitle: 'Сделать селфи в историческом городе',
-      cameraHint: 'Если камера не включается — разрешите доступ к камере в настройках браузера.'
-    },
-    en: {
-      greet: 'Choose a version to view:',
-      short: 'Short version',
-      full: 'Full version',
-      photo: 'Reconstruction photo',
-      selfie: 'Take a selfie in the historic city',
-      back: 'Back',
-      caption: 'Drag the line to compare: Ruined / Reconstructed Ak-Saray',
-      selfieTitle: 'Take a selfie in the historic city',
-      cameraHint: 'If camera does not start — allow camera access in your browser settings.'
-    },
-    uz: {
-      greet: "Ko‘rish turini tanlang:",
-      short: 'Qisqa versiya',
-      full: 'To‘liq versiya',
-      photo: 'Qayta tiklangan surat',
-      selfie: "Tarixiy shaharda selfi olish",
-      back: 'Ortga',
-      caption: "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy",
-      selfieTitle: "Tarixiy shaharda selfi oling",
-      cameraHint: "Agar kamera ishlamasa — brauzer sozlamalarida kameraga ruxsat bering."
-    }
-  };
-
-  const t = texts[lang];
-  document.getElementById('greetingText').innerText = t.greet;
-  document.getElementById('shortBtn').innerText = t.short;
-  document.getElementById('fullBtn').innerText = t.full;
-  document.getElementById('photoBtn').innerText = t.photo;
-  document.getElementById('selfieBtn').innerText = t.selfie;
-  document.getElementById('backFromGreetingBtn').innerText = t.back;
-  document.getElementById('backFromInstructionBtn').innerText = t.back;
-  document.getElementById('backFromPhotoBtn').innerText = t.back;
-  document.getElementById('backFromSelfieBtn').innerText = t.back;
-  document.getElementById('photoCaption').innerText = t.caption;
-  document.getElementById('selfieTitle').innerText = t.selfieTitle;
-  document.getElementById('cameraHint').innerText = t.cameraHint;
-
-  // leave short/full behavior unchanged (open YouTube links)
-  document.getElementById('shortBtn').onclick = ()=> showInstruction('https://www.youtube.com/watch?v=6WX-oVWf5YY');
-  document.getElementById('fullBtn').onclick = ()=> showInstruction('https://www.youtube.com/watch?v=T3ypZKNN7_4');
-  document.getElementById('photoBtn').onclick = showPhotoScreen;
-  document.getElementById('selfieBtn').onclick = showSelfieScreen;
-  document.getElementById('backFromGreetingBtn').onclick = ()=> showScreen('langScreen');
-}
-
-function showInstruction(url){
-  videoUrl = url;
-  showScreen('instructionScreen');
-  const map = {
-    ru: ['Виртуальный тур по древнему городу','Инструкция: используйте мышь или гироскоп для вращения обзора.','Начать','Назад'],
-    en: ['Virtual tour of the ancient city','Instruction: use your mouse or gyroscope to look around.','Start','Back'],
-    uz: ['Qadimiy shahar bo‘ylab virtual sayohat','Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning.','Boshlash','Ortga']
-  };
-  const m = map[currentLang];
-  document.getElementById('instructionTitle').innerText = m[0];
-  document.getElementById('instructionText').innerText = m[1];
-  document.getElementById('startBtn').innerText = m[2];
-  document.getElementById('backFromInstructionBtn').innerText = m[3];
-  document.getElementById('startBtn').onclick = ()=> window.open(videoUrl,'_blank');
-  document.getElementById('backFromInstructionBtn').onclick = ()=> showScreen('greetingScreen');
-}
-
-/* ---------------- SLIDER ---------------- */
-function showPhotoScreen(){
-  showScreen('photoScreen');
-  initSlider();
-}
-function initSlider(){
-  const container = document.getElementById('sliderContainer'),
-        after = document.getElementById('afterImage'),
-        handle = document.getElementById('sliderHandle');
-  let dragging = false;
-  function setPos(clientX){
-    const rect = container.getBoundingClientRect();
-    let pos = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    const percent = (pos / rect.width) * 100;
-    after.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
-    handle.style.left = `${percent}%`;
-    handle.setAttribute('aria-valuenow', Math.round(percent));
-  }
-  handle.onmousedown = ()=> dragging = true;
-  window.onmouseup = ()=> dragging = false;
-  window.onmousemove = (e)=> { if(dragging) setPos(e.clientX); };
-  handle.ontouchstart = ()=> dragging = true;
-  window.ontouchend = ()=> dragging = false;
-  window.ontouchmove = (e)=> { if(dragging) setPos(e.touches[0].clientX); };
-  container.onclick = (e)=> setPos(e.clientX);
-  // init center
-  const rect = container.getBoundingClientRect();
-  setPos(rect.left + rect.width / 2);
-  document.getElementById('backFromPhotoBtn').onclick = ()=> showScreen('greetingScreen');
-}
-
-/* ---------------- SELFIE (photo capture with Mediapipe) ---------------- */
-let cameraFeed = null, selfieSeg = null;
-async function showSelfieScreen(){
-  showScreen('selfieScreen');
-  // initialize only once
-  if (!selfieSeg){
-    const videoElem = document.getElementById('camera');
-    const canvasElem = document.getElementById('output');
-    const ctx = canvasElem.getContext('2d');
-    // background image (ponorama1.jpg)
-    const bgImg = new Image();
-    bgImg.src = 'ponorama1.jpg';
-    bgImg.onload = ()=> {
-      // nothing here, draw when frames come
-    };
-    // initialize mediapipe
-    selfieSeg = new SelfieSegmentation({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}` });
-    selfieSeg.setOptions({ modelSelection: 1 });
-    selfieSeg.onResults((results)=> {
-      // ensure canvas size
-      if (!videoElem.videoWidth || !videoElem.videoHeight) return;
-      canvasElem.width = videoElem.videoWidth;
-      canvasElem.height = videoElem.videoHeight;
-      // draw background first, then mask and video as person
-      // We'll draw video masked over background so person appears above background
-      // Approach: draw background, then destination-in mask and draw video over it using composite ops
-      // 1) draw background
-      ctx.clearRect(0,0,canvasElem.width,canvasElem.height);
-      if (bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvasElem.width, canvasElem.height);
-      // 2) create person image on temp canvas via mask
-      // draw video into temp canvas then mask to keep person and composite over background
-      // Simpler: Draw video, apply mask destination-in to keep person, then draw background behind using destination-over
-      // draw video as source
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.drawImage(videoElem, 0, 0, canvasElem.width, canvasElem.height);
-      // apply mask to keep person
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(results.segmentationMask, 0, 0, canvasElem.width, canvasElem.height);
-      // draw background under masked person
-      ctx.globalCompositeOperation = 'destination-over';
-      if (bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvasElem.width, canvasElem.height);
-      ctx.restore();
-    });
-
-    // request camera & start Camera utils
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
-      videoElem.srcObject = stream;
-      cameraFeed = new Camera(videoElem, {
-        onFrame: async ()=> { await selfieSeg.send({ image: videoElem }); },
-        width: 1280,
-        height: 720
-      });
-      cameraFeed.start();
-      // permission hint hide
-      document.getElementById('cameraPermissionHint').style.display = 'none';
-    } catch (err) {
-      document.getElementById('cameraPermissionHint').style.display = 'block';
-      document.getElementById('cameraPermissionHint').innerText = (currentLang === 'ru')
-        ? 'Не удалось включить камеру. Разрешите доступ к камере и перезагрузите страницу.'
-        : (currentLang === 'en')
-          ? 'Could not start camera. Allow camera access and reload the page.'
-          : "Kamerani yoqib bo'lmadi. Kameraga ruxsat bering va sahifani qayta yuklang.";
-      console.error('camera error', err);
+    function showScreen(id) {
+      document.getElementById(currentScreen).style.display = "none";
+      document.getElementById(id).style.display = "flex";
+      currentScreen = id;
     }
 
-    // wire up capture/save/share buttons
-    const takeBtn = document.getElementById('takePhotoBtn');
-    const saveBtn = document.getElementById('savePhotoBtn');
-    const instaBtn = document.getElementById('shareInstagramBtn');
-    const ytBtn = document.getElementById('openYouTubeBtn');
-    const preview = document.getElementById('previewImg');
-    const downloadLink = document.getElementById('savePhotoBtn');
+    function goBack(target) {
+      showScreen(target);
+    }
 
-    takeBtn.onclick = () => {
-      // capture current canvas (output) — it already contains composed frame from onResults
-      const canvas = document.getElementById('output');
-      // Show preview
-      const dataUrl = canvas.toDataURL('image/png');
-      preview.src = dataUrl;
-      preview.style.display = 'block';
-      // enable save and share buttons
-      saveBtn.style.display = 'inline-block';
-      instaBtn.style.display = 'inline-block';
-      ytBtn.style.display = 'inline-block';
-      // set download attribute on save button via temporary link
-      downloadLink.onclick = () => {
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = 'selfie_historic.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+    function showGreeting(lang) {
+      currentLang = lang;
+      showScreen("greetingScreen");
+      let greet, shortText, fullText, photoText, selfieText, backText, photoCaption;
+      switch (lang) {
+        case "ru":
+          greet = "Выберите вариант просмотра:";
+          shortText = "Короткая версия";
+          fullText = "Полная версия";
+          photoText = "Фото реконструкции";
+          selfieText = "Сделать селфи в историческом городе";
+          backText = "Назад";
+          photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
+          break;
+        case "en":
+          greet = "Choose a version to view:";
+          shortText = "Short version";
+          fullText = "Full version";
+          photoText = "Reconstruction photo";
+          selfieText = "Take a selfie in the historic city";
+          backText = "Back";
+          photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
+          break;
+        case "uz":
+          greet = "Ko‘rish turini tanlang:";
+          shortText = "Qisqa versiya";
+          fullText = "To‘liq versiya";
+          photoText = "Qayta tiklangan surat";
+          selfieText = "Tarixiy shaharda selfi oling";
+          backText = "Ortga";
+          photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
+          break;
+      }
+      document.getElementById("greetingText").innerText = greet;
+      document.getElementById("shortBtn").innerText = shortText;
+      document.getElementById("fullBtn").innerText = fullText;
+      document.getElementById("photoBtn").innerText = photoText;
+      document.getElementById("selfieBtn").innerText = selfieText;
+      document.getElementById("backFromGreetingBtn").innerText = backText;
+      document.getElementById("backFromInstructionBtn").innerText = backText;
+      document.getElementById("backFromPhotoBtn").innerText = backText;
+      document.getElementById("backFromSelfieBtn").innerText = backText;
+      document.getElementById("photoCaption").innerText = photoCaption;
+
+      document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
+      document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
+      document.getElementById("photoBtn").onclick = showPhotoScreen;
+      document.getElementById("selfieBtn").onclick = showSelfieScreen;
+      document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
+    }
+
+    function showInstruction(url) {
+      videoUrl = url;
+      showScreen("instructionScreen");
+      let title, text, startText, backText;
+      switch (currentLang) {
+        case "ru":
+          title = "Виртуальный тур по древнему городу";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
+          startText = "Начать";
+          backText = "Назад";
+          break;
+        case "en":
+          title = "Virtual tour of the ancient city";
+          text = "Instruction: use your mouse or gyroscope to move the view. Click 'Start' to open the video.";
+          startText = "Start";
+          backText = "Back";
+          break;
+        case "uz":
+          title = "Qadimiy shahar bo‘ylab virtual sayohat";
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. 'Boshlash' tugmasini bosing.";
+          startText = "Boshlash";
+          backText = "Ortga";
+          break;
+      }
+      document.getElementById("instructionTitle").innerText = title;
+      document.getElementById("instructionText").innerText = text;
+      document.getElementById("startBtn").innerText = startText;
+      document.getElementById("backFromInstructionBtn").innerText = backText;
+      document.getElementById("startBtn").onclick = () => window.open(videoUrl, "_blank");
+      document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
+    }
+
+    function showPhotoScreen() {
+      showScreen("photoScreen");
+      initSlider();
+      document.getElementById("backFromPhotoBtn").onclick = () => goBack('greetingScreen');
+    }
+
+    function initSlider() {
+      const container = document.getElementById('sliderContainer');
+      const afterImage = document.getElementById('afterImage');
+      const handle = document.getElementById('sliderHandle');
+      let isDragging = false;
+      function setPosition(x) {
+        const rect = container.getBoundingClientRect();
+        let pos = Math.max(0, Math.min(x - rect.left, rect.width));
+        const percent = (pos / rect.width) * 100;
+        afterImage.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
+        handle.style.left = `${percent}%`;
+      }
+      handle.addEventListener('mousedown', () => isDragging = true);
+      window.addEventListener('mouseup', () => isDragging = false);
+      window.addEventListener('mousemove', (e) => { if(isDragging) setPosition(e.clientX); });
+      handle.addEventListener('touchstart', () => isDragging = true);
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('touchmove', (e) => { if(isDragging) setPosition(e.touches[0].clientX); });
+      setPosition(container.getBoundingClientRect().width / 2);
+    }
+
+    // === СЕЛФИ ===
+    async function showSelfieScreen() {
+      showScreen("selfieScreen");
+      const video = document.getElementById("camera");
+      const canvas = document.getElementById("output");
+      const ctx = canvas.getContext("2d");
+      const background = new Image();
+      background.src = "ponorama1.jpg";
+      const segmentation = new SelfieSegmentation.SelfieSegmentation({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}` });
+      segmentation.setOptions({ modelSelection: 1 });
+      segmentation.onResults(onResults);
+
+      async function initCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        await video.play();
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        requestAnimationFrame(loop);
+      }
+
+      function loop() { segmentation.send({ image: video }); requestAnimationFrame(loop); }
+
+      function onResults(results) {
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = "destination-in";
+        ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = "destination-over";
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+
+      initCamera();
+
+      const takePhotoBtn = document.getElementById("takePhotoBtn");
+      const savePhotoBtn = document.getElementById("savePhotoBtn");
+      const shareInstagramBtn = document.getElementById("shareInstagramBtn");
+      const openYouTubeBtn = document.getElementById("openYouTubeBtn");
+      const previewImg = document.getElementById("previewImg");
+
+      takePhotoBtn.onclick = () => {
+        const photo = canvas.toDataURL("image/png");
+        previewImg.src = photo;
+        previewImg.style.display = "block";
+        savePhotoBtn.style.display = "inline-block";
+        shareInstagramBtn.style.display = "inline-block";
+        openYouTubeBtn.style.display = "inline-block";
       };
-    };
 
-    instaBtn.onclick = () => {
-      // open instagram (cannot prefill upload from web)
-      window.open('https://www.instagram.com', '_blank');
-    };
-    ytBtn.onclick = () => {
-      window.open('https://www.youtube.com', '_blank');
-    };
+      savePhotoBtn.onclick = () => {
+        const link = document.createElement("a");
+        link.download = "selfie.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      };
 
-    // Back button for selfie defined below (outside init)
-  } // end if selfieSeg init
-
-  // ensure "back" button wired (may be wired multiple times harmlessly)
-  document.getElementById('backFromSelfieBtn').onclick = ()=> {
-    showScreen('greetingScreen');
-    // hide preview and buttons to reset state
-    document.getElementById('previewImg').style.display = 'none';
-    document.getElementById('savePhotoBtn').style.display = 'none';
-    document.getElementById('shareInstagramBtn').style.display = 'none';
-    document.getElementById('openYouTubeBtn').style.display = 'none';
-  };
-}
-
-/* initialization: nothing until user chooses language */
-</script>
+      shareInstagramBtn.onclick = () => window.open("https://www.instagram.com", "_blank");
+      openYouTubeBtn.onclick = () => window.open("https://www.youtube.com", "_blank");
+      document.getElementById("backFromSelfieBtn").onclick = () => goBack('greetingScreen');
+    }
+  </script>
 </body>
 </html>
