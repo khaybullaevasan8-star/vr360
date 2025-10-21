@@ -28,10 +28,10 @@
       background: rgba(245, 237, 220, 0.95);
       border: 2px solid #a88f61;
       border-radius: 12px;
-      padding: 28px 34px;
+      padding: 24px 32px;
       text-align: center;
       box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      max-width: 85%;
+      max-width: 90%;
     }
 
     .btn {
@@ -97,26 +97,15 @@
       color: #2b241a;
     }
 
-    canvas {
+    video, canvas {
+      width: 90%;
+      max-width: 600px;
       border-radius: 12px;
-      max-width: 100%;
-    }
-
-    .hint {
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-      color: #4a3f2c;
-    }
-
-    .preview-img {
-      margin-top: 15px;
-      border: 2px solid #a88f61;
-      border-radius: 10px;
-      max-width: 90%;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-top: 10px;
     }
   </style>
 </head>
+
 <body>
   <!-- Экран выбора языка -->
   <div id="langScreen" class="screen">
@@ -165,28 +154,29 @@
 
   <!-- Экран селфи -->
   <div id="selfieScreen" class="screen" style="display:none;">
-    <div class="card" style="max-width:960px;">
-      <h2 id="selfieTitle">Сделать селфи в историческом городе</h2>
-      <p class="hint" id="cameraHint">Если камера не включается — разрешите доступ к камере.</p>
-      <canvas id="output"></canvas>
-      <video id="camera" autoplay playsinline muted style="display:none;"></video>
+    <div class="card">
+      <h2 id="selfieTitle">Сделайте селфи в историческом городе</h2>
+      <p id="selfieTip">Если камера не работает — разрешите доступ в настройках браузера.</p>
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
       <div>
         <button class="btn" id="takePhotoBtn">📸 Сделать фото</button>
-        <button class="btn" id="savePhotoBtn" style="display:none;">💾 Сохранить</button>
-        <button class="btn" id="shareInstagramBtn" style="display:none;">📸 Instagram</button>
-        <button class="btn" id="openYouTubeBtn" style="display:none;">▶️ YouTube</button>
-        <button class="btn" id="backFromSelfieBtn">⬅️ Назад</button>
+        <button class="btn" id="savePhotoBtn">💾 Сохранить</button>
       </div>
-      <img id="previewImg" class="preview-img" style="display:none;" alt="Preview">
+      <div>
+        <button class="btn" onclick="window.open('https://www.instagram.com','_blank')">📸 Открыть Instagram</button>
+        <button class="btn" onclick="window.open('https://www.youtube.com','_blank')">▶️ Открыть YouTube</button>
+        <button class="btn" id="backFromSelfieBtn">🔙 Назад</button>
+      </div>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 
   <script>
     let currentLang = 'ru';
     let videoUrl = '';
     let currentScreen = 'langScreen';
+    const background = new Image();
+    background.src = "panorama1.png"; // ✅ исправлено имя файла
 
     function showScreen(id) {
       document.getElementById(currentScreen).style.display = "none";
@@ -201,6 +191,7 @@
     function showGreeting(lang) {
       currentLang = lang;
       showScreen("greetingScreen");
+
       let greet, shortText, fullText, photoText, selfieText, backText, photoCaption;
       switch (lang) {
         case "ru":
@@ -217,7 +208,7 @@
           shortText = "Short version";
           fullText = "Full version";
           photoText = "Reconstruction photo";
-          selfieText = "Take a selfie in the historic city";
+          selfieText = "Take a selfie in the historical city";
           backText = "Back";
           photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
           break;
@@ -231,6 +222,7 @@
           photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
           break;
       }
+
       document.getElementById("greetingText").innerText = greet;
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
@@ -252,6 +244,7 @@
     function showInstruction(url) {
       videoUrl = url;
       showScreen("instructionScreen");
+
       let title, text, startText, backText;
       switch (currentLang) {
         case "ru":
@@ -273,6 +266,7 @@
           backText = "Ortga";
           break;
       }
+
       document.getElementById("instructionTitle").innerText = title;
       document.getElementById("instructionText").innerText = text;
       document.getElementById("startBtn").innerText = startText;
@@ -284,7 +278,6 @@
     function showPhotoScreen() {
       showScreen("photoScreen");
       initSlider();
-      document.getElementById("backFromPhotoBtn").onclick = () => goBack('greetingScreen');
     }
 
     function initSlider() {
@@ -292,6 +285,7 @@
       const afterImage = document.getElementById('afterImage');
       const handle = document.getElementById('sliderHandle');
       let isDragging = false;
+
       function setPosition(x) {
         const rect = container.getBoundingClientRect();
         let pos = Math.max(0, Math.min(x - rect.left, rect.width));
@@ -299,75 +293,48 @@
         afterImage.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
         handle.style.left = `${percent}%`;
       }
+
       handle.addEventListener('mousedown', () => isDragging = true);
       window.addEventListener('mouseup', () => isDragging = false);
       window.addEventListener('mousemove', (e) => { if(isDragging) setPosition(e.clientX); });
+
       handle.addEventListener('touchstart', () => isDragging = true);
       window.addEventListener('touchend', () => isDragging = false);
       window.addEventListener('touchmove', (e) => { if(isDragging) setPosition(e.touches[0].clientX); });
+
       setPosition(container.getBoundingClientRect().width / 2);
     }
 
-    // === СЕЛФИ ===
-    async function showSelfieScreen() {
+    function showSelfieScreen() {
       showScreen("selfieScreen");
-      const video = document.getElementById("camera");
-      const canvas = document.getElementById("output");
-      const ctx = canvas.getContext("2d");
-      const background = new Image();
-      background.src = "ponorama1.jpg";
-      const segmentation = new SelfieSegmentation.SelfieSegmentation({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}` });
-      segmentation.setOptions({ modelSelection: 1 });
-      segmentation.onResults(onResults);
 
-      async function initCamera() {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        await video.play();
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(() => {
+          alert("Разрешите доступ к камере в настройках браузера");
+        });
+
+      document.getElementById('takePhotoBtn').onclick = () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        requestAnimationFrame(loop);
-      }
-
-      function loop() { segmentation.send({ image: video }); requestAnimationFrame(loop); }
-
-      function onResults(results) {
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "destination-in";
-        ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "destination-over";
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "source-over";
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      }
-
-      initCamera();
-
-      const takePhotoBtn = document.getElementById("takePhotoBtn");
-      const savePhotoBtn = document.getElementById("savePhotoBtn");
-      const shareInstagramBtn = document.getElementById("shareInstagramBtn");
-      const openYouTubeBtn = document.getElementById("openYouTubeBtn");
-      const previewImg = document.getElementById("previewImg");
-
-      takePhotoBtn.onclick = () => {
-        const photo = canvas.toDataURL("image/png");
-        previewImg.src = photo;
-        previewImg.style.display = "block";
-        savePhotoBtn.style.display = "inline-block";
-        shareInstagramBtn.style.display = "inline-block";
-        openYouTubeBtn.style.display = "inline-block";
       };
 
-      savePhotoBtn.onclick = () => {
-        const link = document.createElement("a");
-        link.download = "selfie.png";
-        link.href = canvas.toDataURL("image/png");
+      document.getElementById('savePhotoBtn').onclick = () => {
+        const link = document.createElement('a');
+        link.download = 'selfie.png';
+        link.href = canvas.toDataURL();
         link.click();
       };
 
-      shareInstagramBtn.onclick = () => window.open("https://www.instagram.com", "_blank");
-      openYouTubeBtn.onclick = () => window.open("https://www.youtube.com", "_blank");
-      document.getElementById("backFromSelfieBtn").onclick = () => goBack('greetingScreen');
+      document.getElementById('backFromSelfieBtn').onclick = () => goBack('greetingScreen');
     }
   </script>
 </body>
