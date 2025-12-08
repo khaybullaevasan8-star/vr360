@@ -61,7 +61,7 @@
       transform: translateY(-2px);
     }
     
-    /* Стили для слайдера (без изменений) */
+    /* Стили для слайдера */
     .slider-container {
       position: relative;
       width: 90%;
@@ -104,50 +104,7 @@
       font-weight: bold;
       color: #2b241a;
     }
-    /* ---------------------- СТИЛИ КАМЕРЫ И ХОЛСТА ---------------------- */
-
-    video, canvas {
-      /* Обеспечиваем одинаковый размер и центрирование */
-      width: 90%;
-      max-width: 600px;
-      aspect-ratio: 16/9; 
-      border-radius: 12px;
-      margin-top: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
-    /* Маленький превью сохранённого фото */
-    #capturedPreview {
-      margin-top: 10px;
-      max-width: 90%;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      display: none;
-    }
-
-    /* Контейнер для кнопок масок */
-    .masks-row {
-      margin-top: 10px;
-      display: flex;
-      gap: 4px; /* Уменьшенный разрыв */
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* Контейнер для кнопок действия */
-    .action-row {
-        margin-top: 8px; /* Уменьшенный верхний отступ */
-        display: flex;
-        gap: 4px; /* Уменьшенный разрыв */
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 
 </head>
 
@@ -169,7 +126,6 @@
         <button class="btn" id="fullBtn"></button>
       </div>
       <button class="btn" id="photoBtn"></button>
-      <button class="btn" id="selfieBtn"></button>
       <button class="btn" id="backFromGreetingBtn"></button>
     </div>
   </div>
@@ -192,51 +148,19 @@
     <div class="photo-caption" id="photoCaption"></div>
     <button class="btn" style="margin-top:20px;" id="backFromPhotoBtn"></button>
   </div>
-
-  <div id="selfieScreen" class="screen" style="display:none;">
-    <div class="card">
-      <h2 id="selfieTitle">Сделайте селфи в историческом городе</h2>
-      <p id="selfieTip">Если камера не работает — разрешите доступ в настройках браузера.</p>
-
-      <video id="selfieVideo" autoplay playsinline></video>
-      <canvas id="selfieCanvas"></canvas>
-
-      <div class="masks-row" aria-label="Выбор маски">
-        <button class="btn" id="maskNoneBtn">Без маски</button>
-        <button class="btn" id="mask1Btn">Masira1</button>
-        <button class="btn" id="mask2Btn">Masira2</button>
-      </div>
-
-      <div class="action-row">
-        <button class="btn" id="takePhotoBtn">📸 Сделать фото</button>
-        <button class="btn" id="savePhotoBtn">💾 Скачать</button>
-        <button class="btn" id="backFromSelfieBtn">🔙 Назад</button>
-      </div>
-
-      <img id="capturedPreview" alt="Сделанное фото">
-
-      <img id="bgPanorama" src="panorama1.png" style="display:none;" alt="фон">
-
-    </div>
-  </div>
-
+  
   <script>
     let currentLang = 'ru';
     let videoUrl = '';
     let currentScreen = 'langScreen';
     
-    let faceMesh = null;
-    let selfieCamera = null;
-    let currentMaskImage = null;
-    let lastCapturedDataUrl = null;
+    // Переменные, связанные с камерой, удалены.
 
     // ---------------------- ФУНКЦИИ НАВИГАЦИИ ----------------------
 
     function showScreen(id) {
-      if (currentScreen === 'selfieScreen') {
-        stopSelfieCamera();
-      }
-
+      // Убран код остановки камеры
+      
       document.getElementById(currentScreen).style.display = "none";
       document.getElementById(id).style.display = "flex";
       currentScreen = id;
@@ -250,15 +174,16 @@
       currentLang = lang;
       showScreen("greetingScreen");
 
-      let greet, shortText, fullText, photoText, selfieText, backText, photoCaption;
-      // ... (логика перевода остается прежней) ...
+      // selfieText удален из списка переменных
+      let greet, shortText, fullText, photoText, backText, photoCaption;
+
       switch (lang) {
         case "ru":
           greet = "Выберите вариант просмотра:";
           shortText = "Короткая версия";
           fullText = "Полная версия";
           photoText = "Фото реконструкции";
-          selfieText = "Сделать селфи в историческом городе";
+          // selfieText = "Сделать селфи в историческом городе"; // удалено
           backText = "Назад";
           photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
           break;
@@ -267,7 +192,7 @@
           shortText = "Short version";
           fullText = "Full version";
           photoText = "Reconstruction photo";
-          selfieText = "Take a selfie in the historical city";
+          // selfieText = "Take a selfie in the historical city"; // удалено
           backText = "Back";
           photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
           break;
@@ -276,7 +201,7 @@
           shortText = "Qisqa versiya";
           fullText = "To‘liq versiya";
           photoText = "Qayta tiklangan surat";
-          selfieText = "Tarixiy shaharda selfi oling";
+          // selfieText = "Tarixiy shaharda selfi oling"; // удалено
           backText = "Ortga";
           photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
           break;
@@ -286,17 +211,17 @@
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
       document.getElementById("photoBtn").innerText = photoText;
-      document.getElementById("selfieBtn").innerText = selfieText;
+      // document.getElementById("selfieBtn").innerText = selfieText; // удалено
       document.getElementById("backFromGreetingBtn").innerText = backText;
       document.getElementById("backFromInstructionBtn").innerText = backText;
       document.getElementById("backFromPhotoBtn").innerText = backText;
-      document.getElementById("backFromSelfieBtn").innerText = backText;
+      // document.getElementById("backFromSelfieBtn").innerText = backText; // удалено
       document.getElementById("photoCaption").innerText = photoCaption;
 
       document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
       document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
       document.getElementById("photoBtn").onclick = showPhotoScreen;
-      document.getElementById("selfieBtn").onclick = showSelfieScreen;
+      // document.getElementById("selfieBtn").onclick = showSelfieScreen; // удалено
       document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
     }
 
@@ -305,7 +230,7 @@
       showScreen("instructionScreen");
 
       let title, text, startText, backText;
-      // ... (логика перевода остается прежней) ...
+      
       switch (currentLang) {
         case "ru":
           title = "Виртуальный тур по древнему городу";
@@ -365,278 +290,6 @@
 
       setPosition(container.getBoundingClientRect().width / 2);
     }
-
-    // ---------------------- ФУНКЦИИ СЕЛФИ/КАМЕРЫ ----------------------
-
-    function showSelfieScreen() {
-      showScreen("selfieScreen");
-
-      // Установка локализованных текстов
-      const titleEl = document.getElementById('selfieTitle');
-      const tipEl = document.getElementById('selfieTip');
-      const backBtn = document.getElementById('backFromSelfieBtn');
-      const takeBtn = document.getElementById('takePhotoBtn');
-      const saveBtn = document.getElementById('savePhotoBtn');
-      const mask1Btn = document.getElementById('mask1Btn');
-      const mask2Btn = document.getElementById('mask2Btn');
-      const maskNoneBtn = document.getElementById('maskNoneBtn');
-
-      if (currentLang === 'ru') {
-        titleEl.innerText = "Сделайте селфи в историческом городе";
-        tipEl.innerText = "Если камера не работает — разрешите доступ в настройках браузера.";
-        takeBtn.innerText = "📸 Сделать фото";
-        saveBtn.innerText = "💾 Скачать";
-        backBtn.innerText = "🔙 Назад";
-        mask1Btn.innerText = "Masira1";
-        mask2Btn.innerText = "Masira2";
-        maskNoneBtn.innerText = "Без маски";
-      } else if (currentLang === 'en') {
-        titleEl.innerText = "Take a selfie in the historical city";
-        tipEl.innerText = "If camera doesn't work — allow access in browser settings.";
-        takeBtn.innerText = "📸 Capture";
-        saveBtn.innerText = "💾 Download";
-        backBtn.innerText = "🔙 Back";
-        mask1Btn.innerText = "Masira1";
-        mask2Btn.innerText = "Masira2";
-        maskNoneBtn.innerText = "No mask";
-      } else if (currentLang === 'uz') {
-        titleEl.innerText = "Tarixiy shaharda selfi oling";
-        tipEl.innerText = "Agar kamera ishlamasa — brauzer sozlamalarida ruxsat bering.";
-        takeBtn.innerText = "📸 Suratga olish";
-        saveBtn.innerText = "💾 Yuklab olish";
-        backBtn.innerText = "🔙 Ortga";
-        mask1Btn.innerText = "Masira1";
-        mask2Btn.innerText = "Masira2";
-        maskNoneBtn.innerText = "Maskasiz";
-      }
-
-      // Запуск процесса камеры и FaceMesh
-      initFaceMeshAndCamera();
-
-      // Привязки кнопок
-      mask1Btn.onclick = () => setMask('masira1.png');
-      mask2Btn.onclick = () => setMask('masira2.png');
-      maskNoneBtn.onclick = () => setMask(null);
-
-      takeBtn.onclick = () => takePhoto();
-      saveBtn.onclick = () => savePhoto();
-      
-      backBtn.onclick = () => goBack('greetingScreen');
-    }
-
-    function initFaceMeshAndCamera() {
-      if (!faceMesh) {
-        // Конфигурация FaceMesh
-        faceMesh = new FaceMesh.FaceMesh({
-          locateFile: (file) => "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + file
-        });
-
-        faceMesh.setOptions({
-          maxNumFaces: 1,
-          refineLandmarks: true,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5
-        });
-
-        faceMesh.onResults(onSelfieResults);
-      }
-      
-      // Запуск процесса запроса разрешения и старта камеры
-      requestCameraPermissionAndStart();
-    }
-
-    async function requestCameraPermissionAndStart() {
-      const videoElement = document.getElementById('selfieVideo');
-      const tipEl = document.getElementById('selfieTip');
-      tipEl.innerText = "Запрашиваем доступ к камере...";
-      
-      stopSelfieCamera(); // Гарантируем, что предыдущий поток остановлен
-
-      try {
-        // 1. ПРИНУДИТЕЛЬНЫЙ ЗАПРОС РАЗРЕШЕНИЯ через стандартный API
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: 'user', // Запрос фронтальной камеры
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            } 
-        });
-        
-        // Камера успешно запущена, передаем поток в видеоэлемент
-        videoElement.srcObject = stream;
-        await videoElement.play();
-        tipEl.innerText = "Камера активна. Идет наложение маски."; 
-
-        // 2. Запуск цикла обработки кадров с помощью MediaPipe Camera
-        selfieCamera = new Camera(videoElement, {
-            onFrame: async () => {
-                await faceMesh.send({ image: videoElement });
-            },
-            width: videoElement.videoWidth || 1280,
-            height: videoElement.videoHeight || 720
-        });
-        
-        selfieCamera.start();
-
-      } catch (error) {
-        // Пользователь отказал в доступе или произошла другая ошибка
-        console.error("Ошибка при запросе или запуске камеры:", error);
-        let errorMsg = "ОШИБКА: Доступ к камере заблокирован. Разрешите доступ в настройках браузера.";
-        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-             errorMsg += " ПРИМЕЧАНИЕ: Камера работает только по HTTPS (безопасное соединение)!";
-        }
-        tipEl.innerText = errorMsg;
-        alert("Не удалось получить доступ к камере. Пожалуйста, разрешите использование камеры в настройках браузера и убедитесь, что страница открыта по HTTPS или на localhost.");
-      }
-    }
-
-    function stopSelfieCamera() {
-      if (selfieCamera && typeof selfieCamera.stop === 'function') {
-        try { selfieCamera.stop(); } catch (e) { /* ignore */ }
-        selfieCamera = null;
-      }
-      const vid = document.getElementById('selfieVideo');
-      if (vid && vid.srcObject) {
-        const tracks = vid.srcObject.getTracks();
-        tracks.forEach(t => t.stop());
-        vid.srcObject = null;
-      }
-    }
-
-    function setMask(src) {
-      if (!src) {
-        currentMaskImage = null;
-        return;
-      }
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        currentMaskImage = img;
-      };
-      img.onerror = () => {
-        currentMaskImage = null;
-        console.warn('Не удалось загрузить маску:', src);
-      };
-    }
-
-    // Обработчик результатов FaceMesh — рисуем фон, видео и маску в canvas
-    function onSelfieResults(results) {
-      const canvas = document.getElementById('selfieCanvas');
-      const ctx = canvas.getContext('2d');
-      const videoEl = document.getElementById('selfieVideo');
-      const bg = document.getElementById('bgPanorama');
-
-      const vw = videoEl.videoWidth || 1280;
-      const vh = videoEl.videoHeight || 720;
-      
-      // Установка размеров холста
-      canvas.width = vw; 
-      canvas.height = vh;
-      
-      // Установка CSS стилей для отображения
-      const maxDisplayWidth = Math.min(window.innerWidth * 0.9, 600); 
-      const scale = maxDisplayWidth / vw;
-      canvas.style.width = maxDisplayWidth + 'px';
-      canvas.style.height = (vh * scale) + 'px';
-
-
-      // 1. Рисуем фон (панорама)
-      if (bg && bg.complete) {
-        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-      } else {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-      }
-
-      // 2. Рисуем видео (себя) поверх фона
-      if (results.image) {
-        ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-      } else if (videoEl && videoEl.readyState >= 2) {
-        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-      }
-
-      // 3. Наложение маски
-      if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0 || !currentMaskImage) {
-        return;
-      }
-
-      const face = results.multiFaceLandmarks[0];
-
-      function toP(pt) {
-        return {
-          x: pt.x * canvas.width,
-          y: pt.y * canvas.height
-        };
-      }
-
-      const leftEye = toP(face[33]);
-      const rightEye = toP(face[263]);
-      const forehead = toP(face[10]);
-      const chin = toP(face[152]);
-
-      const eyeDist = Math.hypot(rightEye.x - leftEye.x, rightEye.y - leftEye.y);
-      const faceHeight = Math.hypot(chin.x - forehead.x, chin.y - forehead.y);
-
-      const centerX = (leftEye.x + rightEye.x) / 2;
-      const centerY = (forehead.y + chin.y) / 2;
-
-      const maskWidth = eyeDist * 3.2;
-      const maskHeight = faceHeight * 1.6;
-
-      const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
-
-      if (currentMaskImage && currentMaskImage.complete) {
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angle);
-        ctx.drawImage(currentMaskImage, -maskWidth/2, -maskHeight/2, maskWidth, maskHeight);
-        ctx.restore();
-      }
-    }
-
-    // ---------------------- ФУНКЦИИ ФОТО/СКАЧИВАНИЯ ----------------------
-
-    function takePhoto() {
-      const canvas = document.getElementById('selfieCanvas');
-      if (!canvas) return;
-      lastCapturedDataUrl = canvas.toDataURL('image/png');
-      const preview = document.getElementById('capturedPreview');
-      preview.src = lastCapturedDataUrl;
-      preview.style.display = 'block';
-    }
-
-    function savePhoto() {
-      const canvas = document.getElementById('selfieCanvas');
-      let dataUrl;
-      if (lastCapturedDataUrl) {
-        dataUrl = lastCapturedDataUrl;
-      } else if (canvas) {
-        dataUrl = canvas.toDataURL('image/png');
-      } else {
-        return;
-      }
-      downloadDataUrl(dataUrl, 'selfie.png');
-    }
-
-    function downloadDataUrl(dataUrl, filename) {
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    // ---------------------- ИНИЦИАЛИЗАЦИЯ И ОЧИСТКА ----------------------
-    
-    // Предзагрузка фоновой панорамы
-    document.getElementById('bgPanorama').onload = () => { /* готово */ };
-
-    // Очистка камеры при закрытии вкладки
-    window.addEventListener('beforeunload', () => {
-      stopSelfieCamera();
-    });
-
   </script>
 </body>
 </html>
