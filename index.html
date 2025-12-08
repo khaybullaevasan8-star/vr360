@@ -121,7 +121,6 @@
     }
 
   </style>
-
 </head>
 
 <body>
@@ -174,14 +173,7 @@
   <div id="panoramaSelectionScreen" class="screen" style="display:none;">
     <div class="card" style="max-width: 700px;">
       <h2 id="panoramaTitle"></h2>
-      <div class="panorama-buttons">
-        <button class="btn" onclick="showIndividualPanorama('panoramiks1.jpg','Входные ворота')">1</button>
-        <button class="btn" onclick="showIndividualPanorama('panoramiks2.jpg','Комнаты')">2</button>
-        <button class="btn" onclick="showIndividualPanorama('panoramiks3.jpg','Прием граждан')">3</button>
-        <button class="btn" onclick="showIndividualPanorama('panoramiks4.jpg','Вид на двери тронного зала')">4</button>
-        <button class="btn" onclick="showIndividualPanorama('panoramiks5.jpg','Вид на вход комнат визирей')">5</button>
-        <button class="btn" onclick="showIndividualPanorama('panoramiks6.jpg','Вид на вход дворец')">6</button>
-      </div>
+      <div class="panorama-buttons" id="panoramaButtonsContainer"></div>
       <button class="btn" id="backFromPanoramaSelectionBtn"></button>
     </div>
   </div>
@@ -201,6 +193,16 @@
     let currentScreen = 'langScreen';
     let panoramaViewer = null;
 
+    // Панорамы с названиями на 3 языках
+    const panoramas = [
+      { filename: 'panoramiks1.jpg', title: {ru:'Входные ворота', en:'Entrance Gates', uz:'Kirish darvozasi'} },
+      { filename: 'panoramiks2.jpg', title: {ru:'Комнаты', en:'Rooms', uz:'Xonalar'} },
+      { filename: 'panoramiks3.jpg', title: {ru:'Прием граждан', en:'Reception', uz:'Fuqarolarni qabul qilish'} },
+      { filename: 'panoramiks4.jpg', title: {ru:'Вид на двери тронного зала', en:'View of Throne Hall Doors', uz:'Taxt zali eshiklari manzarasi'} },
+      { filename: 'panoramiks5.jpg', title: {ru:'Вид на вход комнат визирей', en:'View of Viziers’ Rooms Entrance', uz:'Vizirlar xonalari kirish manzarasi'} },
+      { filename: 'panoramiks6.jpg', title: {ru:'Вид на вход дворец', en:'View of Palace Entrance', uz:'Saroy kirish manzarasi'} },
+    ];
+
     function showScreen(id) {
       if (currentScreen === 'individualPanoramaScreen' && panoramaViewer) {
         panoramaViewer.destroy();
@@ -217,54 +219,54 @@
       currentLang = lang;
       showScreen("greetingScreen");
 
-      let greet, shortText, fullText, photoText, photoPanoramaText, backText, photoCaption;
+      const texts = {
+        ru: {
+          greet: "Выберите вариант просмотра:",
+          shortText: "Короткая версия",
+          fullText: "Полная версия",
+          photoText: "Фото реконструкции",
+          photoPanoramaText: "Фотопанорама 360°",
+          backText: "Назад",
+          photoCaption: "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай"
+        },
+        en: {
+          greet: "Choose a version to view:",
+          shortText: "Short version",
+          fullText: "Full version",
+          photoText: "Reconstruction photo",
+          photoPanoramaText: "360° Photo Panorama",
+          backText: "Back",
+          photoCaption: "Drag to compare: Ruined / Reconstructed Ak-Saray"
+        },
+        uz: {
+          greet: "Ko‘rish turini tanlang:",
+          shortText: "Qisqa versiya",
+          fullText: "To‘liq versiya",
+          photoText: "Qayta tiklangan surat",
+          photoPanoramaText: "360° Fotopanorama",
+          backText: "Ortga",
+          photoCaption: "Solishtirish uchun chiziqni sudrang: vayron / tiklangan Ak-Saroy"
+        }
+      };
 
-      switch (lang) {
-        case "ru":
-          greet = "Выберите вариант просмотра:";
-          shortText = "Короткая версия";
-          fullText = "Полная версия";
-          photoText = "Фото реконструкции";
-          photoPanoramaText = "Фотопанорама 360°";
-          backText = "Назад";
-          photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
-          break;
-        case "en":
-          greet = "Choose a version to view:";
-          shortText = "Short version";
-          fullText = "Full version";
-          photoText = "Reconstruction photo";
-          photoPanoramaText = "360° Photo Panorama";
-          backText = "Back";
-          photoCaption = "Drag to compare: Ruined / Reconstructed Ak-Saray";
-          break;
-        case "uz":
-          greet = "Ko‘rish turini tanlang:";
-          shortText = "Qisqa versiya";
-          fullText = "To‘liq versiya";
-          photoText = "Qayta tiklangan surat";
-          photoPanoramaText = "360° Fotopanorama";
-          backText = "Ortga";
-          photoCaption = "Solishtirish uchun chiziqni sudrang: vayron / tiklangan Ak-Saroy";
-          break;
-      }
+      const t = texts[lang];
 
-      document.getElementById("greetingText").innerText = greet;
-      document.getElementById("shortBtn").innerText = shortText;
-      document.getElementById("fullBtn").innerText = fullText;
-      document.getElementById("photoBtn").innerText = photoText;
-      document.getElementById("photoPanoramaBtn").innerText = photoPanoramaText;
-      document.getElementById("backFromGreetingBtn").innerText = backText;
-      document.getElementById("backFromInstructionBtn").innerText = backText;
-      document.getElementById("backFromPhotoBtn").innerText = backText;
-      document.getElementById("backFromPanoramaSelectionBtn").innerText = backText;
-      document.getElementById("backFromIndividualPanoramaBtn").innerText = backText;
-      document.getElementById("photoCaption").innerText = photoCaption;
+      document.getElementById("greetingText").innerText = t.greet;
+      document.getElementById("shortBtn").innerText = t.shortText;
+      document.getElementById("fullBtn").innerText = t.fullText;
+      document.getElementById("photoBtn").innerText = t.photoText;
+      document.getElementById("photoPanoramaBtn").innerText = t.photoPanoramaText;
+      document.getElementById("backFromGreetingBtn").innerText = t.backText;
+      document.getElementById("backFromInstructionBtn").innerText = t.backText;
+      document.getElementById("backFromPhotoBtn").innerText = t.backText;
+      document.getElementById("backFromPanoramaSelectionBtn").innerText = t.backText;
+      document.getElementById("backFromIndividualPanoramaBtn").innerText = t.backText;
+      document.getElementById("photoCaption").innerText = t.photoCaption;
 
       document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
       document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
       document.getElementById("photoBtn").onclick = showPhotoScreen;
-      document.getElementById("photoPanoramaBtn").onclick = () => showScreen('panoramaSelectionScreen');
+      document.getElementById("photoPanoramaBtn").onclick = showPanoramaSelectionScreen;
       document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
     }
 
@@ -272,29 +274,16 @@
       videoUrl = url;
       showScreen("instructionScreen");
 
-      let title, text, startText;
+      const texts = {
+        ru: {title:"Виртуальный тур по древнему городу", text:"Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.", startText:"Начать"},
+        en: {title:"Virtual tour of the ancient city", text:"Use your mouse or gyroscope to move the view. Click Start to open the video.", startText:"Start"},
+        uz: {title:"Qadimiy shahar bo‘ylab virtual sayohat", text:"Ko‘rsatma: sichqoncha yoki giroskop yordamida manzarani aylantiring.", startText:"Boshlash"}
+      };
+      const t = texts[currentLang];
 
-      switch (currentLang) {
-        case "ru":
-          title = "Виртуальный тур по древнему городу";
-          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
-          startText = "Начать";
-          break;
-        case "en":
-          title = "Virtual tour of the ancient city";
-          text = "Use your mouse or gyroscope to move the view. Click Start to open the video.";
-          startText = "Start";
-          break;
-        case "uz":
-          title = "Qadimiy shahar bo‘ylab virtual sayohat";
-          text = "Ko‘rsatma: sichqoncha yoki giroskop yordamida manzarani aylantiring.";
-          startText = "Boshlash";
-          break;
-      }
-
-      document.getElementById("instructionTitle").innerText = title;
-      document.getElementById("instructionText").innerText = text;
-      document.getElementById("startBtn").innerText = startText;
+      document.getElementById("instructionTitle").innerText = t.title;
+      document.getElementById("instructionText").innerText = t.text;
+      document.getElementById("startBtn").innerText = t.startText;
 
       document.getElementById("startBtn").onclick = () => window.open(videoUrl, "_blank");
       document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
@@ -331,7 +320,26 @@
       setPosition(container.getBoundingClientRect().width / 2);
     }
 
-    // ────────────── ФОТОПАНОРАМЫ ──────────────
+    // ────────────── Панорама 360° ──────────────
+    function showPanoramaSelectionScreen() {
+      showScreen('panoramaSelectionScreen');
+
+      const titleTexts = {ru:'360° Фотопанорама', en:'360° Photo Panorama', uz:'360° Fotopanorama'};
+      document.getElementById('panoramaTitle').innerText = titleTexts[currentLang];
+
+      const container = document.getElementById('panoramaButtonsContainer');
+      container.innerHTML = '';
+
+      panoramas.forEach((pano, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.innerText = (index+1);
+        btn.title = pano.title[currentLang]; 
+        btn.onclick = () => showIndividualPanorama(pano.filename, pano.title[currentLang]);
+        container.appendChild(btn);
+      });
+    }
+
     function showIndividualPanorama(filename, title) {
       showScreen('individualPanoramaScreen');
       document.getElementById('individualPanoramaTitle').innerText = title;
@@ -352,6 +360,7 @@
     }
 
     document.getElementById("backFromPanoramaSelectionBtn").onclick = () => goBack('greetingScreen');
+
   </script>
 </body>
 </html>
