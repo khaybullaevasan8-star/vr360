@@ -1,439 +1,445 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <title>VR 360 Исторический Тур</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <meta charset="utf-8" />
+  <title>VR 360 Исторический Тур</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
-  <style>
-    /* ---------------------- СТИЛИЗАЦИЯ ---------------------- */
+  <style>
+    /* ---------------------- СТИЛИЗАЦИЯ ---------------------- */
 
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #f5f0e6;
-      font-family: "Georgia", serif;
-      color: #2b241a;
-      overflow: hidden;
-    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f5f0e6;
+      font-family: "Georgia", serif;
+      color: #2b241a;
+      overflow: hidden;
+    }
 
-    .screen {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: #f5f0e6;
-    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #f5f0e6;
+    }
 
-    .card {
-      background: rgba(245, 237, 220, 0.95);
-      border: 2px solid #a88f61;
-      border-radius: 12px;
-      padding: 24px 32px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      max-width: 90%;
-      max-width: 700px; 
-      /* Уменьшение padding для мобильных устройств */
-      padding: 15px; 
-    }
+    .card {
+      background: rgba(245, 237, 220, 0.95);
+      border: 2px solid #a88f61;
+      border-radius: 12px;
+      padding: 24px 32px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+      max-width: 90%;
+      max-width: 700px; 
+      padding: 15px; 
+    }
 
-    .btn {
-      display: inline-block;
-      background: linear-gradient(to bottom, #c1a675, #a88f61);
-      color: #2b241a;
-      border: 1px solid #7b6643;
-      /* Уменьшение padding для компактности */
-      padding: 6px 12px; 
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin: 4px; /* Меньшие отступы */
-      transition: 0.3s;
-      font-size: 0.8rem; /* Чуть меньше шрифт */
-      box-shadow: 0 2px 3px rgba(0,0,0,0.2);
-      white-space: nowrap; /* Важно для кнопок в ряд */
-    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(to bottom, #c1a675, #a88f61);
+      color: #2b241a;
+      border: 1px solid #7b6643;
+      padding: 6px 12px; 
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 4px;
+      transition: 0.3s;
+      font-size: 0.8rem;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
 
-    .btn:hover {
-      background: linear-gradient(to bottom, #d4bc8a, #b5996b);
-      transform: translateY(-2px);
-    }
+    .btn:hover {
+      background: linear-gradient(to bottom, #d4bc8a, #b5996b);
+      transform: translateY(-2px);
+    }
+    
+    /* Стили для слайдера */
+    .slider-container {
+      position: relative;
+      width: 90%;
+      max-width: 800px;
+      height: 60vh;
+      overflow: hidden;
+      border: 3px solid #a88f61;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+    }
+
+    .slider-container img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      top: 0;
+      left: 0;
+    }
+
+    .slider-container .after-image {
+      clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+      transition: clip-path 0.1s;
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 4px;
+      height: 100%;
+      background: #a88f61;
+      cursor: ew-resize;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .photo-caption {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2b241a;
+    }
+    
+    /* Стили для PANORAMA */
+    
+    #panoramaViewer {
+      width: 90vw; 
+      max-width: 700px;
+      height: 60vh;
+      border: 3px solid #a88f61;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .panorama-controls {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .panorama-controls .btn {
+        min-width: 35px;
+        font-size: 1rem;
+        font-weight: normal;
+        padding: 8px 10px;
+    }
     
-    /* Стили для слайдера (Фото реконструкции) */
-    .slider-container {
-      position: relative;
-      width: 90%;
-      max-width: 800px;
-      height: 60vh;
-      overflow: hidden;
-      border: 3px solid #a88f61;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
+    /* СТИЛЬ АКТИВНОЙ КНОПКИ */
+    .panorama-controls .btn.active {
+        background: #7b6643; /* Темнее, чтобы показать, что она активна */
+        color: white;
+        border-color: #5d4a31;
     }
 
-    .slider-container img {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      top: 0;
-      left: 0;
-    }
-
-    .slider-container .after-image {
-      clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-      transition: clip-path 0.1s;
-    }
-
-    .slider-handle {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 4px;
-      height: 100%;
-      background: #a88f61;
-      cursor: ew-resize;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .photo-caption {
-      text-align: center;
-      margin-top: 20px;
-      font-weight: bold;
-      color: #2b241a;
-    }
-    
-    /* НОВЫЕ СТИЛИ ДЛЯ PANORAMA */
-    
-    /* Контейнер для VR-плеера (занимает почти весь экран) */
-    #panoramaViewer {
-      width: 90vw; 
-      max-width: 700px;
-      height: 60vh; /* Высота для хорошего просмотра */
-      border: 3px solid #a88f61;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    /* Стили для выбора панорам */
-    .panorama-controls {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .panorama-controls .btn {
-        min-width: 35px; /* Увеличиваем минимальную ширину для удобства */
-        font-size: 1rem;
-        font-weight: normal;
-        padding: 8px 10px;
-    }
-
-  </style>
+  </style>
 
 </head>
 
 <body>
-  <div id="langScreen" class="screen">
-    <div class="card">
-      <h2>Выберите язык / Select language / Tilni tanlang</h2>
-      <button class="btn" onclick="showGreeting('ru')">Русский</button>
-      <button class="btn" onclick="showGreeting('en')">English</button>
-      <button class="btn" onclick="showGreeting('uz')">O‘zbekcha</button>
-    </div>
-  </div>
+  <div id="langScreen" class="screen">
+    <div class="card">
+      <h2>Выберите язык / Select language / Tilni tanlang</h2>
+      <button class="btn" onclick="showGreeting('ru')">Русский</button>
+      <button class="btn" onclick="showGreeting('en')">English</button>
+      <button class="btn" onclick="showGreeting('uz')">O‘zbekcha</button>
+    </div>
+  </div>
 
-  <div id="greetingScreen" class="screen" style="display:none;">
-    <div class="card">
-      <h3 id="greetingText"></h3>
-      <div>
-        <button class="btn" id="shortBtn"></button>
-        <button class="btn" id="fullBtn"></button>
-      </div>
-      <button class="btn" id="photoBtn"></button>
-      <button class="btn" id="photoPanoramaBtn"></button>
-      
-      <button class="btn" id="backFromGreetingBtn"></button>
-    </div>
-  </div>
+  <div id="greetingScreen" class="screen" style="display:none;">
+    <div class="card">
+      <h3 id="greetingText"></h3>
+      <div>
+        <button class="btn" id="shortBtn"></button>
+        <button class="btn" id="fullBtn"></button>
+      </div>
+      <button class="btn" id="photoBtn"></button>
+      <button class="btn" id="photoPanoramaBtn"></button>
+      
+      <button class="btn" id="backFromGreetingBtn"></button>
+    </div>
+  </div>
 
-  <div id="instructionScreen" class="screen" style="display:none;">
-    <div class="card">
-      <h2 id="instructionTitle"></h2>
-      <h3 id="instructionText"></h3>
-      <button class="btn" id="startBtn" style="margin-top:20px;"></button>
-      <button class="btn" id="backFromInstructionBtn"></button>
-    </div>
-  </div>
+  <div id="instructionScreen" class="screen" style="display:none;">
+    <div class="card">
+      <h2 id="instructionTitle"></h2>
+      <h3 id="instructionText"></h3>
+      <button class="btn" id="startBtn" style="margin-top:20px;"></button>
+      <button class="btn" id="backFromInstructionBtn"></button>
+    </div>
+  </div>
 
-  <div id="photoScreen" class="screen" style="display:none;">
-    <div class="slider-container" id="sliderContainer">
-      <img src="svayp1.jpg" alt="Разрушенный Ак Сарай" class="before-image">
-      <img src="svayp2.jpg" alt="Реконструированный Ак Сарай" class="after-image" id="afterImage">
-      <div class="slider-handle" id="sliderHandle"></div>
-    </div>
-    <div class="photo-caption" id="photoCaption"></div>
-    <button class="btn" style="margin-top:20px;" id="backFromPhotoBtn"></button>
-  </div>
-  
-  <div id="panoramaScreen" class="screen" style="display:none;">
-    <div class="card" style="max-width: 95%;">
-      <h2 id="panoramaTitle"></h2>
-      
-      <div id="panoramaViewer"></div>
+  <div id="photoScreen" class="screen" style="display:none;">
+    <div class="slider-container" id="sliderContainer">
+      <img src="svayp1.jpg" alt="Разрушенный Ак Сарай" class="before-image">
+      <img src="svayp2.jpg" alt="Реконструированный Ак Сарай" class="after-image" id="afterImage">
+      <div class="slider-handle" id="sliderHandle"></div>
+    </div>
+    <div class="photo-caption" id="photoCaption"></div>
+    <button class="btn" style="margin-top:20px;" id="backFromPhotoBtn"></button>
+  </div>
+  
+  <div id="panoramaScreen" class="screen" style="display:none;">
+    <div class="card" style="max-width: 95%;">
+      <h2 id="panoramaTitle"></h2>
+      
+      <div id="panoramaViewer"></div>
 
-      <div class="panorama-controls" id="panoramaControls">
-        </div>
-      
-      <button class="btn" style="margin-top:15px;" id="backFromPanoramaBtn"></button>
-    </div>
-  </div>
+      <div class="panorama-controls" id="panoramaControls">
+        </div>
+      
+      <button class="btn" style="margin-top:15px;" id="backFromPanoramaBtn"></button>
+    </div>
+  </div>
 
-  <script>
-    let currentLang = 'ru';
-    let videoUrl = '';
-    let currentScreen = 'langScreen';
-    let panoramaViewer = null; // Переменная для хранения экземпляра Pannellum
+  <script>
+    let currentLang = 'ru';
+    let videoUrl = '';
+    let currentScreen = 'langScreen';
+    let panoramaViewer = null; // Переменная для хранения экземпляра Pannellum
 
-    // Список ваших 6 панорамных фото
-    const panoramas = [
-        { id: 'p1', filename: 'panoramiks1.jpg', title_ru: 'Панорама 1: Внешний вид' },
-        { id: 'p2', filename: 'panoramiks2.jpg', title_ru: 'Панорама 2: Внутренний двор' },
-        { id: 'p3', filename: 'panoramiks3.jpg', title_ru: 'Панорама 3: Главный вход' },
-        { id: 'p4', filename: 'panoramiks4.jpg', title_ru: 'Панорама 4: Вид с башни' },
-        { id: 'p5', filename: 'panoramiks5.jpg', title_ru: 'Панорама 5: Рынок' },
-        { id: 'p6', filename: 'panoramiks6.jpg', title_ru: 'Панорама 6: Ворота города' },
-    ];
-    
-    // ---------------------- ФУНКЦИИ НАВИГАЦИИ ----------------------
+    // Список ваших 6 панорамных фото
+    const panoramas = [
+        { id: 'p1', filename: 'panoramiks1.jpg', title_ru: 'Панорама 1: Внешний вид' },
+        { id: 'p2', filename: 'panoramiks2.jpg', title_ru: 'Панорама 2: Внутренний двор' },
+        { id: 'p3', filename: 'panoramiks3.jpg', title_ru: 'Панорама 3: Главный вход' },
+        { id: 'p4', filename: 'panoramiks4.jpg', title_ru: 'Панорама 4: Вид с башни' },
+        { id: 'p5', filename: 'panoramiks5.jpg', title_ru: 'Панорама 5: Рынок' },
+        { id: 'p6', filename: 'panoramiks6.jpg', title_ru: 'Панорама 6: Ворота города' },
+    ];
+    
+    // ---------------------- ФУНКЦИИ НАВИГАЦИИ ----------------------
 
-    function showScreen(id) {
-      // Остановка VR-плеера при выходе со страницы панорамы
-      if (currentScreen === 'panoramaScreen' && panoramaViewer) {
-          panoramaViewer.destroy();
-          panoramaViewer = null;
-      }
+    function showScreen(id) {
+      // Остановка VR-плеера при выходе со страницы панорамы
+      if (currentScreen === 'panoramaScreen' && panoramaViewer) {
+          panoramaViewer.destroy();
+          panoramaViewer = null;
+      }
 
-      document.getElementById(currentScreen).style.display = "none";
-      document.getElementById(id).style.display = "flex";
-      currentScreen = id;
-    }
+      document.getElementById(currentScreen).style.display = "none";
+      document.getElementById(id).style.display = "flex";
+      currentScreen = id;
+    }
 
-    function goBack(target) {
-      showScreen(target);
-    }
+    function goBack(target) {
+      showScreen(target);
+    }
 
-    function showGreeting(lang) {
-      currentLang = lang;
-      showScreen("greetingScreen");
+    function showGreeting(lang) {
+      currentLang = lang;
+      showScreen("greetingScreen");
 
-      // Добавлена новая переменная photoPanoramaText
-      let greet, shortText, fullText, photoText, photoPanoramaText, backText, photoCaption;
+      let greet, shortText, fullText, photoText, photoPanoramaText, backText, photoCaption;
 
-      switch (lang) {
-        case "ru":
-          greet = "Выберите вариант просмотра:";
-          shortText = "Короткая версия";
-          fullText = "Полная версия";
-          photoText = "Фото реконструкции";
-          photoPanoramaText = "Фотопанорама 360°"; // Новый текст
-          backText = "Назад";
-          photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
-          break;
-        case "en":
-          greet = "Choose a version to view:";
-          shortText = "Short version";
-          fullText = "Full version";
-          photoText = "Reconstruction photo";
-          photoPanoramaText = "360° Photo Panorama"; // Новый текст
-          backText = "Back";
-          photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
-          break;
-        case "uz":
-          greet = "Ko‘rish turini tanlang:";
-          shortText = "Qisqa versiya";
-          fullText = "To‘liq versiya";
-          photoText = "Qayta tiklangan surat";
-          photoPanoramaText = "360° Fotopanorama"; // Новый текст
-          backText = "Ortga";
-          photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
-          break;
-      }
+      switch (lang) {
+        case "ru":
+          greet = "Выберите вариант просмотра:";
+          shortText = "Короткая версия";
+          fullText = "Полная версия";
+          photoText = "Фото реконструкции";
+          photoPanoramaText = "Фотопанорама 360°";
+          backText = "Назад";
+          photoCaption = "Потяните линию, чтобы сравнить: Разрушенный / Реконструированный Ак-Сарай";
+          break;
+        case "en":
+          greet = "Choose a version to view:";
+          shortText = "Short version";
+          fullText = "Full version";
+          photoText = "Reconstruction photo";
+          photoPanoramaText = "360° Photo Panorama";
+          backText = "Back";
+          photoCaption = "Drag the line to compare: Ruined / Reconstructed Ak-Saray";
+          break;
+        case "uz":
+          greet = "Ko‘rish turini tanlang:";
+          shortText = "Qisqa versiya";
+          fullText = "To‘liq versiya";
+          photoText = "Qayta tiklangan surat";
+          photoPanoramaText = "360° Fotopanorama";
+          backText = "Ortga";
+          photoCaption = "Chiziqni harakatlantirib solishtiring: vayron / tiklangan Ak-Saroy";
+          break;
+      }
 
-      document.getElementById("greetingText").innerText = greet;
-      document.getElementById("shortBtn").innerText = shortText;
-      document.getElementById("fullBtn").innerText = fullText;
-      document.getElementById("photoBtn").innerText = photoText;
-      document.getElementById("photoPanoramaBtn").innerText = photoPanoramaText; // Привязка текста
-      document.getElementById("backFromGreetingBtn").innerText = backText;
-      document.getElementById("backFromInstructionBtn").innerText = backText;
-      document.getElementById("backFromPhotoBtn").innerText = backText;
-      document.getElementById("backFromPanoramaBtn").innerText = backText; // Привязка текста
-      document.getElementById("photoCaption").innerText = photoCaption;
+      document.getElementById("greetingText").innerText = greet;
+      document.getElementById("shortBtn").innerText = shortText;
+      document.getElementById("fullBtn").innerText = fullText;
+      document.getElementById("photoBtn").innerText = photoText;
+      document.getElementById("photoPanoramaBtn").innerText = photoPanoramaText;
+      document.getElementById("backFromGreetingBtn").innerText = backText;
+      document.getElementById("backFromInstructionBtn").innerText = backText;
+      document.getElementById("backFromPhotoBtn").innerText = backText;
+      document.getElementById("backFromPanoramaBtn").innerText = backText;
+      document.getElementById("photoCaption").innerText = photoCaption;
 
-      document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
-      document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
-      document.getElementById("photoBtn").onclick = showPhotoScreen;
-      document.getElementById("photoPanoramaBtn").onclick = () => showPanoramaScreen('panoramiks1.jpg'); // Вызываем новую функцию
-      document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
-    }
+      document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
+      document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
+      document.getElementById("photoBtn").onclick = showPhotoScreen;
+      // Инициализируем панораму с первым файлом
+      document.getElementById("photoPanoramaBtn").onclick = () => showPanoramaScreen(panoramas[0].filename); 
+      document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
+    }
 
-    function showInstruction(url) {
-      videoUrl = url;
-      showScreen("instructionScreen");
-      
-      let title, text, startText;
-      // ... (логика перевода остается прежней) ...
-      switch (currentLang) {
-        case "ru":
-          title = "Виртуальный тур по древнему городу";
-          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
-          startText = "Начать";
-          break;
-        case "en":
-          title = "Virtual tour of the ancient city";
-          text = "Instruction: use your mouse or gyroscope to move the view. Click 'Start' to open the video.";
-          startText = "Start";
-          break;
-        case "uz":
-          title = "Qadimiy shahar bo‘ylab virtual sayohat";
-          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. 'Boshlash' tugmasini bosing.";
-          startText = "Boshlash";
-          break;
-      }
+    function showInstruction(url) {
+      videoUrl = url;
+      showScreen("instructionScreen");
+      
+      let title, text, startText;
+      
+      switch (currentLang) {
+        case "ru":
+          title = "Виртуальный тур по древнему городу";
+          text = "Инструкция: используйте мышь или гироскоп, чтобы вращать обзор. Нажмите «Начать», чтобы открыть видео.";
+          startText = "Начать";
+          break;
+        case "en":
+          title = "Virtual tour of the ancient city";
+          text = "Instruction: use your mouse or gyroscope to move the view. Click 'Start' to open the video.";
+          startText = "Start";
+          break;
+        case "uz":
+          title = "Qadimiy shahar bo‘ylab virtual sayohat";
+          text = "Ko‘rsatma: manzarani aylantirish uchun sichqoncha yoki giroskopdan foydalaning. 'Boshlash' tugmasini bosing.";
+          startText = "Boshlash";
+          break;
+      }
 
-      document.getElementById("instructionTitle").innerText = title;
-      document.getElementById("instructionText").innerText = text;
-      document.getElementById("startBtn").innerText = startText;
+      document.getElementById("instructionTitle").innerText = title;
+      document.getElementById("instructionText").innerText = text;
+      document.getElementById("startBtn").innerText = startText;
 
-      document.getElementById("startBtn").onclick = () => window.open(videoUrl, "_blank");
-      document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
-    }
+      document.getElementById("startBtn").onclick = () => window.open(videoUrl, "_blank");
+      document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
+    }
 
-    // Функция для Фото реконструкции (Осталась)
-    function showPhotoScreen() {
-      showScreen("photoScreen");
-      initSlider();
-      document.getElementById("backFromPhotoBtn").onclick = () => goBack('greetingScreen');
-    }
+    function showPhotoScreen() {
+      showScreen("photoScreen");
+      initSlider();
+      document.getElementById("backFromPhotoBtn").onclick = () => goBack('greetingScreen');
+    }
 
-    // Логика слайдера (Осталась)
-    function initSlider() {
-      const container = document.getElementById('sliderContainer');
-      const afterImage = document.getElementById('afterImage');
-      const handle = document.getElementById('sliderHandle');
-      let isDragging = false;
+    function initSlider() {
+      const container = document.getElementById('sliderContainer');
+      const afterImage = document.getElementById('afterImage');
+      const handle = document.getElementById('sliderHandle');
+      let isDragging = false;
 
-      function setPosition(x) {
-        const rect = container.getBoundingClientRect();
-        let pos = Math.max(0, Math.min(x - rect.left, rect.width));
-        const percent = (pos / rect.width) * 100;
-        afterImage.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
-        handle.style.left = `${percent}%`;
-      }
+      function setPosition(x) {
+        const rect = container.getBoundingClientRect();
+        let pos = Math.max(0, Math.min(x - rect.left, rect.width));
+        const percent = (pos / rect.width) * 100;
+        afterImage.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
+        handle.style.left = `${percent}%`;
+      }
 
-      handle.addEventListener('mousedown', () => isDragging = true);
-      window.addEventListener('mouseup', () => isDragging = false);
-      window.addEventListener('mousemove', (e) => { if(isDragging) setPosition(e.clientX); });
+      handle.addEventListener('mousedown', () => isDragging = true);
+      window.addEventListener('mouseup', () => isDragging = false);
+      window.addEventListener('mousemove', (e) => { if(isDragging) setPosition(e.clientX); });
 
-      handle.addEventListener('touchstart', () => isDragging = true);
-      window.addEventListener('touchend', () => isDragging = false);
-      window.addEventListener('touchmove', (e) => { if(isDragging) setPosition(e.touches[0].clientX); });
+      handle.addEventListener('touchstart', () => isDragging = true);
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('touchmove', (e) => { if(isDragging) setPosition(e.touches[0].clientX); });
 
-      setPosition(container.getBoundingClientRect().width / 2);
-    }
-    
-    // ---------------------- НОВЫЕ ФУНКЦИИ PANORAMA ----------------------
+      setPosition(container.getBoundingClientRect().width / 2);
+    }
+    
+    // ---------------------- ФУНКЦИИ PANORAMA ----------------------
 
-    function showPanoramaScreen(initialPanorama) {
-      showScreen("panoramaScreen");
-      
-      const titleEl = document.getElementById('panoramaTitle');
-      if (currentLang === 'ru') {
-          titleEl.innerText = "360° Фотопанорама";
-      } else if (currentLang === 'en') {
-          titleEl.innerText = "360° Photo Panorama";
-      } else {
-          titleEl.innerText = "360° Fotopanorama";
-      }
+    function showPanoramaScreen(initialPanorama) {
+      showScreen("panoramaScreen");
+      
+      const titleEl = document.getElementById('panoramaTitle');
+      if (currentLang === 'ru') {
+          titleEl.innerText = "360° Фотопанорама";
+      } else if (currentLang === 'en') {
+          titleEl.innerText = "360° Photo Panorama";
+      } else {
+          titleEl.innerText = "360° Fotopanorama";
+      }
 
-      // 1. Создаем кнопки выбора панорам
-      createPanoramaButtons();
+      // 1. Создаем кнопки выбора панорам
+      createPanoramaButtons();
 
-      // 2. Инициализируем Pannellum
-      initializePanoramaViewer(initialPanorama);
-      
-      document.getElementById("backFromPanoramaBtn").onclick = () => goBack('greetingScreen');
-    }
-
-    function createPanoramaButtons() {
-        const controls = document.getElementById('panoramaControls');
-        controls.innerHTML = ''; // Очищаем старые кнопки
-
-        panoramas.forEach((pano, index) => {
-            const button = document.createElement('button');
-            button.className = 'btn panorama-select-btn';
-            button.innerText = index + 1; // Номер панорамы
-            button.setAttribute('data-filename', pano.filename);
-            
-            // Если язык русский, добавляем всплывающую подсказку с названием
-            if (currentLang === 'ru' && pano.title_ru) {
-                 button.title = pano.title_ru;
-            }
-
-            button.onclick = () => {
-                // Загружаем новую панораму при клике
-                loadNewPanorama(pano.filename);
-                // Подсвечиваем активную кнопку (сбрасываем и устанавливаем)
-                document.querySelectorAll('.panorama-select-btn').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-            };
-            controls.appendChild(button);
-        });
-
-        // Сразу активируем кнопку для первой панорамы
-        if (controls.firstChild) {
-            controls.firstChild.classList.add('active');
+      // 2. Инициализируем Pannellum (только если еще не инициализирован)
+        if (!panoramaViewer) {
+          initializePanoramaViewer(initialPanorama);
+        } else {
+            // Если плеер уже есть (из-за навигации), просто загружаем первую панораму
+            loadNewPanorama(initialPanorama);
         }
-    }
+      
+      document.getElementById("backFromPanoramaBtn").onclick = () => goBack('greetingScreen');
+    }
 
-    function initializePanoramaViewer(filename) {
-        // Проверяем, существует ли уже плеер, и уничтожаем его, если нужно
-        if (panoramaViewer) {
-            panoramaViewer.destroy();
-        }
+    function createPanoramaButtons() {
+        const controls = document.getElementById('panoramaControls');
+        controls.innerHTML = ''; 
 
-        // Инициализация Pannellum в контейнере #panoramaViewer
-        panoramaViewer = pannellum.viewer('panoramaViewer', {
-            "type": "equirectangular",
-            "panorama": filename, // Путь к первому файлу
-            "autoLoad": true,
-            "autoRotate": -2, // Начинаем медленное вращение
-            "showZoomCtrl": true,
-            "compass": true,
-            "hfov": 100
-        });
-    }
+        panoramas.forEach((pano, index) => {
+            const button = document.createElement('button');
+            button.className = 'btn panorama-select-btn';
+            button.innerText = index + 1; 
+            button.setAttribute('data-filename', pano.filename);
+            
+            if (currentLang === 'ru' && pano.title_ru) {
+                 button.title = pano.title_ru;
+            }
 
-    function loadNewPanorama(filename) {
-        if (panoramaViewer) {
-            panoramaViewer.load({
-                "type": "equirectangular",
-                "panorama": filename,
-                "autoLoad": true
-            });
-        }
-    }
-  </script>
+            button.onclick = () => {
+                // ✅ CORE FIX: Загружаем новую панораму при клике
+                loadNewPanorama(pano.filename);
+                
+                // Подсвечиваем активную кнопку
+                document.querySelectorAll('.panorama-select-btn').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+            };
+            controls.appendChild(button);
+        });
+
+        // Активируем кнопку для первой панорамы по умолчанию
+        if (controls.firstChild) {
+            controls.firstChild.classList.add('active');
+        }
+    }
+
+    function initializePanoramaViewer(filename) {
+        if (panoramaViewer) {
+            panoramaViewer.destroy();
+        }
+
+        // Инициализация Pannellum
+        panoramaViewer = pannellum.viewer('panoramaViewer', {
+            "type": "equirectangular",
+            "panorama": filename, // Путь к первому файлу
+            "autoLoad": true,
+            "autoRotate": -2, 
+            "showZoomCtrl": true,
+            "compass": true,
+            "hfov": 100
+        });
+    }
+
+    function loadNewPanorama(filename) {
+        if (panoramaViewer) {
+            // Функция загрузки новой панорамы
+            panoramaViewer.load({
+                "type": "equirectangular",
+                "panorama": filename,
+                "autoLoad": true
+            });
+        }
+    }
+  </script>
 </body>
 </html>
