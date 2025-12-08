@@ -1,10 +1,3 @@
-Вот исправленный, полностью рабочий код.
-
-Я добавил недостающую команду `panoramaViewer.load();` в функцию переключения. Остальная часть кода (слайдер, языки, приветствие) осталась без изменений.
-
-Можете скопировать этот код целиком и заменить им содержимое вашего файла `index.html`.
-
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -113,18 +106,18 @@
       margin-bottom: 10px;
     }
 
-    .panorama-controls {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        flex-wrap: wrap;
+    .panorama-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
     }
 
-    .panorama-controls .btn {
-        min-width: 35px;
-        font-size: 1rem;
-        padding: 8px 10px;
+    .panorama-buttons .btn {
+      min-width: 50px;
+      font-size: 0.9rem;
+      padding: 8px 12px;
     }
 
   </style>
@@ -132,6 +125,7 @@
 </head>
 
 <body>
+  <!-- Языковой экран -->
   <div id="langScreen" class="screen">
     <div class="card">
       <h2>Выберите язык / Select language / Tilni tanlang</h2>
@@ -141,6 +135,7 @@
     </div>
   </div>
 
+  <!-- Экран приветствия -->
   <div id="greetingScreen" class="screen" style="display:none;">
     <div class="card">
       <h3 id="greetingText"></h3>
@@ -150,11 +145,11 @@
       </div>
       <button class="btn" id="photoBtn"></button>
       <button class="btn" id="photoPanoramaBtn"></button>
-      
       <button class="btn" id="backFromGreetingBtn"></button>
     </div>
   </div>
 
+  <!-- Экран инструкции -->
   <div id="instructionScreen" class="screen" style="display:none;">
     <div class="card">
       <h2 id="instructionTitle"></h2>
@@ -164,6 +159,7 @@
     </div>
   </div>
 
+  <!-- Экран фото реконструкции -->
   <div id="photoScreen" class="screen" style="display:none;">
     <div class="slider-container" id="sliderContainer">
       <img src="svayp1.jpg" class="before-image">
@@ -173,16 +169,29 @@
     <div class="photo-caption" id="photoCaption"></div>
     <button class="btn" id="backFromPhotoBtn"></button>
   </div>
-  
-  <div id="panoramaScreen" class="screen" style="display:none;">
-    <div class="card" style="max-width: 95%;">
-      <h2 id="panoramaTitle"></h2>
-      
-      <div id="panoramaViewer"></div>
 
-      <div class="panorama-controls" id="panoramaControls"></div>
-      
-      <button class="btn" id="backFromPanoramaBtn"></button>
+  <!-- Экран фотопанорам: выбор 6 кнопок + Назад -->
+  <div id="panoramaSelectionScreen" class="screen" style="display:none;">
+    <div class="card" style="max-width: 700px;">
+      <h2 id="panoramaTitle"></h2>
+      <div class="panorama-buttons">
+        <button class="btn" onclick="showIndividualPanorama('panoramiks1.jpg','Входные ворота')">1</button>
+        <button class="btn" onclick="showIndividualPanorama('panoramiks2.jpg','Комнаты')">2</button>
+        <button class="btn" onclick="showIndividualPanorama('panoramiks3.jpg','Прием граждан')">3</button>
+        <button class="btn" onclick="showIndividualPanorama('panoramiks4.jpg','Вид на двери тронного зала')">4</button>
+        <button class="btn" onclick="showIndividualPanorama('panoramiks5.jpg','Вид на вход комнат визирей')">5</button>
+        <button class="btn" onclick="showIndividualPanorama('panoramiks6.jpg','Вид на вход дворец')">6</button>
+      </div>
+      <button class="btn" id="backFromPanoramaSelectionBtn"></button>
+    </div>
+  </div>
+
+  <!-- Экран отдельной фотопанорамы -->
+  <div class="screen" id="individualPanoramaScreen" style="display:none;">
+    <div class="card" style="max-width: 95%;">
+      <h2 id="individualPanoramaTitle"></h2>
+      <div id="panoramaViewer"></div>
+      <button class="btn" id="backFromIndividualPanoramaBtn"></button>
     </div>
   </div>
 
@@ -192,19 +201,10 @@
     let currentScreen = 'langScreen';
     let panoramaViewer = null;
 
-    const panoramas = [
-        { id: 'p1', filename: 'panoramiks1.jpg', title_ru: 'Панорама 1: Внешний вид' },
-        { id: 'p2', filename: 'panoramiks2.jpg', title_ru: 'Панорама 2: Внутренний двор' },
-        { id: 'p3', filename: 'panoramiks3.jpg', title_ru: 'Панорама 3: Главный вход' },
-        { id: 'p4', filename: 'panoramiks4.jpg', title_ru: 'Панорама 4: Вид с башни' },
-        { id: 'p5', filename: 'panoramiks5.jpg', title_ru: 'Панорама 5: Рынок' },
-        { id: 'p6', filename: 'panoramiks6.jpg', title_ru: 'Панорама 6: Ворота города' },
-    ];
-
     function showScreen(id) {
-      if (currentScreen === 'panoramaScreen' && panoramaViewer) {
-          panoramaViewer.destroy();
-          panoramaViewer = null;
+      if (currentScreen === 'individualPanoramaScreen' && panoramaViewer) {
+        panoramaViewer.destroy();
+        panoramaViewer = null;
       }
       document.getElementById(currentScreen).style.display = "none";
       document.getElementById(id).style.display = "flex";
@@ -257,13 +257,14 @@
       document.getElementById("backFromGreetingBtn").innerText = backText;
       document.getElementById("backFromInstructionBtn").innerText = backText;
       document.getElementById("backFromPhotoBtn").innerText = backText;
-      document.getElementById("backFromPanoramaBtn").innerText = backText;
+      document.getElementById("backFromPanoramaSelectionBtn").innerText = backText;
+      document.getElementById("backFromIndividualPanoramaBtn").innerText = backText;
       document.getElementById("photoCaption").innerText = photoCaption;
 
       document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
       document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
       document.getElementById("photoBtn").onclick = showPhotoScreen;
-      document.getElementById("photoPanoramaBtn").onclick = () => showPanoramaScreen('panoramiks1.jpg');
+      document.getElementById("photoPanoramaBtn").onclick = () => showScreen('panoramaSelectionScreen');
       document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
     }
 
@@ -330,74 +331,27 @@
       setPosition(container.getBoundingClientRect().width / 2);
     }
 
-    /* ───────────── PANORAMA ───────────── */
+    // ────────────── ФОТОПАНОРАМЫ ──────────────
+    function showIndividualPanorama(filename, title) {
+      showScreen('individualPanoramaScreen');
+      document.getElementById('individualPanoramaTitle').innerText = title;
 
-    function showPanoramaScreen(initialPanorama) {
-      showScreen("panoramaScreen");
+      if (panoramaViewer) panoramaViewer.destroy();
 
-      const titleEl = document.getElementById('panoramaTitle');
-      titleEl.innerText = 
-        currentLang === 'ru' ? "360° Фотопанорама" : 
-        currentLang === 'en' ? "360° Photo Panorama" : 
-        "360° Fotopanorama";
+      panoramaViewer = pannellum.viewer('panoramaViewer', {
+        "type": "equirectangular",
+        "panorama": filename,
+        "autoLoad": true,
+        "autoRotate": -2,
+        "showZoomCtrl": true,
+        "compass": true,
+        "hfov": 100
+      });
 
-      createPanoramaButtons();
-      initializePanoramaViewer(initialPanorama);
-
-      document.getElementById("backFromPanoramaBtn").onclick = () => goBack('greetingScreen');
+      document.getElementById('backFromIndividualPanoramaBtn').onclick = () => showScreen('panoramaSelectionScreen');
     }
 
-    function createPanoramaButtons() {
-        const controls = document.getElementById('panoramaControls');
-        controls.innerHTML = '';
-
-        panoramas.forEach((pano, index) => {
-            const button = document.createElement('button');
-            button.className = 'btn panorama-select-btn';
-            button.innerText = index + 1;
-            button.setAttribute('data-filename', pano.filename);
-
-            if (currentLang === 'ru') button.title = pano.title_ru;
-            
-            // Если это первая панорама, делаем кнопку активной сразу
-            if (index === 0) button.classList.add('active');
-
-            button.onclick = () => {
-                loadNewPanorama(pano.filename);
-                // Убираем активный класс у всех и ставим на текущую
-                document.querySelectorAll('.panorama-select-btn').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-            };
-
-            controls.appendChild(button);
-        });
-    }
-
-    function initializePanoramaViewer(filename) {
-        if (panoramaViewer) panoramaViewer.destroy();
-
-        panoramaViewer = pannellum.viewer('panoramaViewer', {
-            "type": "equirectangular",
-            "panorama": filename,
-            "autoLoad": true,
-            "autoRotate": -2,
-            "showZoomCtrl": true,
-            "compass": true,
-            "hfov": 100
-        });
-    }
-
-    /* ───────────── ИСПРАВЛЕННАЯ ФУНКЦИЯ ───────────── */
-    
-    function loadNewPanorama(filename) {
-        if (panoramaViewer) {
-            // Сначала устанавливаем новую картинку
-            panoramaViewer.setPanorama(filename);
-            // А ЗАТЕМ ОБЯЗАТЕЛЬНО ЗАГРУЖАЕМ ЕЁ
-            panoramaViewer.load(); 
-        }
-    }
+    document.getElementById("backFromPanoramaSelectionBtn").onclick = () => goBack('greetingScreen');
   </script>
 </body>
 </html>
-```
