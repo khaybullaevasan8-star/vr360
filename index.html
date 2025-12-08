@@ -9,7 +9,7 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
   <style>
-    /* ---------------------- СТИЛИЗАЦИЯ ---------------------- */
+    /* ---------------------- СТИЛИЗАЦИЯ (ОБЩАЯ) ---------------------- */
 
     html, body {
       margin: 0;
@@ -28,6 +28,8 @@
       justify-content: center;
       flex-direction: column;
       background: #f5f0e6;
+      /* Добавлено, чтобы избежать скрытия контента за краями */
+      overflow-y: auto; 
     }
 
     .card {
@@ -63,7 +65,7 @@
       transform: translateY(-2px);
     }
     
-    /* Стили для слайдера */
+    /* Стили для слайдера (Фото реконструкции) */
     .slider-container {
       position: relative;
       width: 90%;
@@ -107,32 +109,48 @@
       color: #2b241a;
     }
     
-    /* Стили для PANORAMA */
+    /* ---------------------- НОВЫЕ СТИЛИ ДЛЯ ШЕСТИ ПАНОРАМ ---------------------- */
     
-    #panoramaViewer {
-      width: 90vw; 
-      max-width: 700px;
-      height: 60vh;
-      border: 3px solid #a88f61;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(50, 30, 10, 0.4);
-      margin-top: 10px;
-      margin-bottom: 10px;
+    #allPanoramasContainer {
+        display: grid;
+        /* 3 колонки на широком экране */
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 10px;
+        max-width: 100%;
+        margin: 10px auto;
+        /* Ограничение высоты, чтобы карточка не была слишком большой */
+        max-height: 70vh; 
+        overflow-y: auto; /* Позволяем прокрутку списка панорам */
+        padding: 0 5px;
+    }
+    
+    /* Медиа-запросы для адаптивности */
+    @media (max-width: 768px) {
+        #allPanoramasContainer {
+            grid-template-columns: repeat(2, 1fr); /* 2 колонки на планшетах */
+        }
+    }
+    @media (max-width: 480px) {
+        #allPanoramasContainer {
+            grid-template-columns: 1fr; /* 1 колонка на смартфонах */
+        }
     }
 
-    .panorama-controls {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        flex-wrap: wrap;
+    /* Стиль для каждого мини-плеера */
+    .mini-panorama-viewer {
+        width: 100%;
+        height: 150px; /* Фиксированная высота */
+        border: 1px solid #a88f61;
+        border-radius: 8px;
     }
-
-    .panorama-controls .btn {
-        min-width: 35px;
-        font-size: 1rem;
-        font-weight: normal;
-        padding: 8px 10px;
+    
+    /* Стиль для подписи */
+    .panorama-caption {
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-top: 4px;
+        text-align: center;
+        color: #443c32;
     }
 
   </style>
@@ -147,7 +165,7 @@
       <button class="btn" onclick="showGreeting('en')">English</button>
       <button class="btn" onclick="showGreeting('uz')">O‘zbekcha</button>
     </div>
-  </div>
+      </div>
 
   <div id="greetingScreen" class="screen" style="display:none;">
     <div class="card">
@@ -186,11 +204,33 @@
     <div class="card" style="max-width: 95%;">
       <h2 id="panoramaTitle"></h2>
       
-      <div id="panoramaViewer"></div>
-
-      <div class="panorama-controls" id="panoramaControls">
-        </div>
-      
+            <div id="allPanoramasContainer">
+          <div class="vr-player-wrapper">
+              <div id="panorama1" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption1"></div>
+          </div>
+          <div class="vr-player-wrapper">
+              <div id="panorama2" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption2"></div>
+          </div>
+          <div class="vr-player-wrapper">
+              <div id="panorama3" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption3"></div>
+          </div>
+          <div class="vr-player-wrapper">
+              <div id="panorama4" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption4"></div>
+          </div>
+          <div class="vr-player-wrapper">
+              <div id="panorama5" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption5"></div>
+          </div>
+          <div class="vr-player-wrapper">
+              <div id="panorama6" class="mini-panorama-viewer"></div>
+              <div class="panorama-caption" id="caption6"></div>
+          </div>
+      </div>
+            
       <button class="btn" style="margin-top:15px;" id="backFromPanoramaBtn"></button>
     </div>
   </div>
@@ -199,27 +239,32 @@
     let currentLang = 'ru';
     let videoUrl = '';
     let currentScreen = 'langScreen';
-    let panoramaViewer = null; // Переменная для хранения экземпляра Pannellum
+    // Изменено: теперь храним массив из 6 плееров, а не один
+    let panoramaViewers = []; 
 
-    // 💡 Путь не нужен, так как файлы лежат рядом с index.html
-    
-    // Список ваших 6 панорамных фото. Путь - просто имя файла.
+    // Список ваших 6 панорамных фото
     const panoramas = [
-        { id: 'p1', filename: 'panoramiks1.jpg', title_ru: 'Панорама 1: Внешний вид' },
-        { id: 'p2', filename: 'panoramiks2.jpg', title_ru: 'Панорама 2: Внутренний двор' },
-        { id: 'p3', filename: 'panoramiks3.jpg', title_ru: 'Панорама 3: Главный вход' },
-        { id: 'p4', filename: 'panoramiks4.jpg', title_ru: 'Панорама 4: Вид с башни' },
-        { id: 'p5', filename: 'panoramiks5.jpg', title_ru: 'Панорама 5: Рынок' },
-        { id: 'p6', filename: 'panoramiks6.jpg', title_ru: 'Панорама 6: Ворота города' },
+        { id: 'p1', filename: 'panoramiks1.jpg', title_ru: 'Внешний вид' },
+        { id: 'p2', filename: 'panoramiks2.jpg', title_ru: 'Внутренний двор' },
+        { id: 'p3', filename: 'panoramiks3.jpg', title_ru: 'Главный вход' },
+        { id: 'p4', filename: 'panoramiks4.jpg', title_ru: 'Вид с башни' },
+        { id: 'p5', filename: 'panoramiks5.jpg', title_ru: 'Рынок' },
+        { id: 'p6', filename: 'panoramiks6.jpg', title_ru: 'Ворота города' },
     ];
     
     // ---------------------- ФУНКЦИИ НАВИГАЦИИ ----------------------
 
+    // ОБНОВЛЕННАЯ ФУНКЦИЯ: Уничтожает все 6 плееров при выходе
     function showScreen(id) {
-      // Остановка VR-плеера при выходе со страницы панорамы
-      if (currentScreen === 'panoramaScreen' && panoramaViewer) {
-          panoramaViewer.destroy();
-          panoramaViewer = null;
+      // Остановка VR-плееров при выходе со страницы панорамы
+      if (currentScreen === 'panoramaScreen') {
+          // Уничтожаем все плееры в массиве, чтобы освободить память
+          panoramaViewers.forEach(viewer => {
+              if (viewer && typeof viewer.destroy === 'function') {
+                  viewer.destroy();
+              }
+          });
+          panoramaViewers = []; // Очищаем массив
       }
 
       document.getElementById(currentScreen).style.display = "none";
@@ -271,7 +316,7 @@
       document.getElementById("shortBtn").innerText = shortText;
       document.getElementById("fullBtn").innerText = fullText;
       document.getElementById("photoBtn").innerText = photoText;
-      document.getElementById("photoPanoramaBtn").innerText = photoPanoramaText;
+      document.getElementById("photoPanoramaBtn").innerText = photoPanoramaText; 
       document.getElementById("backFromGreetingBtn").innerText = backText;
       document.getElementById("backFromInstructionBtn").innerText = backText;
       document.getElementById("backFromPhotoBtn").innerText = backText;
@@ -281,8 +326,8 @@
       document.getElementById("shortBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=6WX-oVWf5YY");
       document.getElementById("fullBtn").onclick = () => showInstruction("https://www.youtube.com/watch?v=T3ypZKNN7_4");
       document.getElementById("photoBtn").onclick = showPhotoScreen;
-      // Передаем имя первого файла для инициализации
-      document.getElementById("photoPanoramaBtn").onclick = () => showPanoramaScreen(panoramas[0].filename); 
+      // Теперь просто вызываем функцию без передачи первого файла
+      document.getElementById("photoPanoramaBtn").onclick = showPanoramaScreen; 
       document.getElementById("backFromGreetingBtn").onclick = () => goBack('langScreen');
     }
 
@@ -291,7 +336,7 @@
       showScreen("instructionScreen");
       
       let title, text, startText;
-      
+      // ... (логика перевода остается прежней) ...
       switch (currentLang) {
         case "ru":
           title = "Виртуальный тур по древнему городу";
@@ -318,12 +363,14 @@
       document.getElementById("backFromInstructionBtn").onclick = () => goBack('greetingScreen');
     }
 
+    // Функция для Фото реконструкции (Осталась без изменений)
     function showPhotoScreen() {
       showScreen("photoScreen");
       initSlider();
       document.getElementById("backFromPhotoBtn").onclick = () => goBack('greetingScreen');
     }
 
+    // Логика слайдера (Осталась без изменений)
     function initSlider() {
       const container = document.getElementById('sliderContainer');
       const afterImage = document.getElementById('afterImage');
@@ -349,85 +396,61 @@
       setPosition(container.getBoundingClientRect().width / 2);
     }
     
-    // ---------------------- ФУНКЦИИ PANORAMA ----------------------
+    // ---------------------- НОВЫЕ ФУНКЦИИ PANORAMA ----------------------
 
-    function showPanoramaScreen(initialPanorama) {
-      showScreen("panoramaScreen");
-      
-      const titleEl = document.getElementById('panoramaTitle');
-      if (currentLang === 'ru') {
-          titleEl.innerText = "360° Фотопанорама";
-      } else if (currentLang === 'en') {
-          titleEl.innerText = "360° Photo Panorama";
-      } else {
-          titleEl.innerText = "360° Fotopanorama";
-      }
+    // Вспомогательная функция для инициализации ОДНОГО плеера
+    function initializeSingleViewer(containerId, filename, captionText) {
+        // Вставляем название
+        document.getElementById(`caption${containerId.replace('panorama', '')}`).innerText = captionText;
 
-      // 1. Создаем кнопки выбора панорам
-      createPanoramaButtons();
-
-      // 2. Инициализируем Pannellum
-      initializePanoramaViewer(initialPanorama);
-      
-      document.getElementById("backFromPanoramaBtn").onclick = () => goBack('greetingScreen');
-    }
-
-    function createPanoramaButtons() {
-        const controls = document.getElementById('panoramaControls');
-        controls.innerHTML = ''; 
-
-        panoramas.forEach((pano, index) => {
-            const button = document.createElement('button');
-            button.className = 'btn panorama-select-btn';
-            button.innerText = index + 1; 
-            button.setAttribute('data-filename', pano.filename);
-            
-            if (currentLang === 'ru' && pano.title_ru) {
-                 button.title = pano.title_ru;
-            }
-
-            button.onclick = () => {
-                // ✅ Используем правильный Pannellum метод load()
-                loadNewPanorama(pano.filename);
-                
-                document.querySelectorAll('.panorama-select-btn').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-            };
-            controls.appendChild(button);
-        });
-
-        // Сразу активируем кнопку для первой панорамы
-        if (controls.firstChild) {
-            controls.firstChild.classList.add('active');
-        }
-    }
-
-    function initializePanoramaViewer(filename) {
-        if (panoramaViewer) {
-            panoramaViewer.destroy();
-        }
-
-        // Инициализация Pannellum
-        panoramaViewer = pannellum.viewer('panoramaViewer', {
+        const viewer = pannellum.viewer(containerId, {
             "type": "equirectangular",
-            "panorama": filename, // Путь к первому файлу
+            "panorama": filename, // Путь к файлу (просто имя файла, т.к. они лежат рядом)
             "autoLoad": true,
             "autoRotate": -2, 
-            "showZoomCtrl": true,
-            "compass": true,
+            // Уменьшаем элементы управления, чтобы они не мешали на маленьком экране
+            "showZoomCtrl": false,
+            "showFullscreenCtrl": false,
+            "compass": false,
             "hfov": 100
         });
+        panoramaViewers.push(viewer);
     }
 
-    function loadNewPanorama(filename) {
-        if (panoramaViewer) {
-            // Функция загрузки новой панорамы
-            panoramaViewer.load({
-                "type": "equirectangular",
-                "panorama": filename,
-                "autoLoad": true
-            });
+    // ГЛАВНАЯ ФУНКЦИЯ: Отображает 6 плееров
+    function showPanoramaScreen() {
+        showScreen("panoramaScreen");
+       
+        const titleEl = document.getElementById('panoramaTitle');
+        let screenTitle;
+        if (currentLang === 'ru') {
+            screenTitle = "Все 360° Фотопанорамы";
+        } else if (currentLang === 'en') {
+            screenTitle = "All 360° Photo Panoramas";
+        } else {
+            screenTitle = "Barcha 360° Fotopanoramalar";
         }
+        titleEl.innerText = screenTitle;
+
+        // Инициализируем 6 плееров в цикле
+        panoramas.forEach((pano, index) => {
+            const containerId = `panorama${index + 1}`;
+            let caption;
+            
+            // Логика перевода подписей
+            if (currentLang === 'ru') {
+                caption = `Панорама ${index + 1}: ${pano.title_ru}`;
+            } else if (currentLang === 'en') {
+                // Здесь можно добавить английские заголовки, пока оставим простой номер
+                caption = `Panorama ${index + 1}`; 
+            } else {
+                caption = `Panorama ${index + 1}`;
+            }
+
+            initializeSingleViewer(containerId, pano.filename, caption);
+        });
+        
+        document.getElementById("backFromPanoramaBtn").onclick = () => goBack('greetingScreen');
     }
   </script>
 </body>
