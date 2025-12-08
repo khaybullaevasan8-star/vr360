@@ -1,3 +1,10 @@
+Вот исправленный, полностью рабочий код.
+
+Я добавил недостающую команду `panoramaViewer.load();` в функцию переключения. Остальная часть кода (слайдер, языки, приветствие) осталась без изменений.
+
+Можете скопировать этот код целиком и заменить им содержимое вашего файла `index.html`.
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -57,6 +64,7 @@
     }
 
     .btn:hover { background: linear-gradient(to bottom, #d4bc8a, #b5996b); transform: translateY(-2px); }
+    .btn.active { background: #8c734b; color: #fff; border-color: #5e4b2f; }
 
     .slider-container {
       position: relative;
@@ -328,9 +336,9 @@
       showScreen("panoramaScreen");
 
       const titleEl = document.getElementById('panoramaTitle');
-      titleEl.innerText =
-        currentLang === 'ru' ? "360° Фотопанорама" :
-        currentLang === 'en' ? "360° Photo Panorama" :
+      titleEl.innerText = 
+        currentLang === 'ru' ? "360° Фотопанорама" : 
+        currentLang === 'en' ? "360° Photo Panorama" : 
         "360° Fotopanorama";
 
       createPanoramaButtons();
@@ -350,17 +358,19 @@
             button.setAttribute('data-filename', pano.filename);
 
             if (currentLang === 'ru') button.title = pano.title_ru;
+            
+            // Если это первая панорама, делаем кнопку активной сразу
+            if (index === 0) button.classList.add('active');
 
             button.onclick = () => {
                 loadNewPanorama(pano.filename);
+                // Убираем активный класс у всех и ставим на текущую
                 document.querySelectorAll('.panorama-select-btn').forEach(b => b.classList.remove('active'));
                 button.classList.add('active');
             };
 
             controls.appendChild(button);
         });
-
-        if (controls.firstChild) controls.firstChild.classList.add('active');
     }
 
     function initializePanoramaViewer(filename) {
@@ -378,12 +388,16 @@
     }
 
     /* ───────────── ИСПРАВЛЕННАЯ ФУНКЦИЯ ───────────── */
-
+    
     function loadNewPanorama(filename) {
         if (panoramaViewer) {
+            // Сначала устанавливаем новую картинку
             panoramaViewer.setPanorama(filename);
+            // А ЗАТЕМ ОБЯЗАТЕЛЬНО ЗАГРУЖАЕМ ЕЁ
+            panoramaViewer.load(); 
         }
     }
   </script>
 </body>
 </html>
+```
