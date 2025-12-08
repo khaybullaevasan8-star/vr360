@@ -403,7 +403,7 @@
         maskNoneBtn.innerText = "Maskasiz";
       }
 
-      // Инициализация FaceMesh и камеры
+      // Инициализация FaceMesh и запрос разрешения камеры
       initFaceMeshAndCamera();
 
       // Привязки кнопок
@@ -414,62 +414,63 @@
       takeBtn.onclick = () => takePhoto();
       saveBtn.onclick = () => savePhoto();
       
-      // ИСПРАВЛЕНО: Привязка кнопки "Назад"
       backBtn.onclick = () => goBack('greetingScreen');
     }
 
     // Инициализация FaceMesh (однократно)
     function initFaceMeshAndCamera() {
-      if (faceMesh) {
-        // если уже работал — просто (повторно) запустим камеру
-        startSelfieCamera();
-        return;
+      if (!faceMesh) {
+        // Конфигурация FaceMesh
+        faceMesh = new FaceMesh.FaceMesh({
+          locateFile: (file) => "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + file
+        });
+
+        faceMesh.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onSelfieResults);
       }
-
-      // Конфигурация FaceMesh
-      faceMesh = new FaceMesh.FaceMesh({
-        locateFile: (file) => "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + file
-      });
-
-      faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      });
-
-      faceMesh.onResults(onSelfieResults);
-
-      startSelfieCamera();
+      
+      // Запускаем процесс запроса разрешения и старта камеры
+      requestCameraPermissionAndStart();
     }
 
-    // ИСПРАВЛЕНО: удален нерабочий fallback с getUserMedia
-    function startSelfieCamera() {
+    // НОВАЯ ФУНКЦИЯ: Запрос разрешения и запуск MediaPipe Camera
+    function requestCameraPermissionAndStart() {
       const videoElement = document.getElementById('selfieVideo');
-
-      // Если уже создана камера — остановим и пересоздадим, чтобы избежать дубликатов
+      
       if (selfieCamera) {
-        try { selfieCamera.stop(); } catch(e){ /* ignore */ }
-        selfieCamera = null;
+          try { selfieCamera.stop(); } catch(e){ /* ignore */ }
+          selfieCamera = null;
       }
 
-      // создаём объект Camera от MediaPipe
-      selfieCamera = new Camera(videoElement, {
-        onFrame: async () => {
-          await faceMesh.send({ image: videoElement });
-        },
-        width: 1280,
-        height: 720
-      });
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+          .then(stream => {
+              // Камера успешно запущена, передаем поток в видеоэлемент
+              videoElement.srcObject = stream;
+              videoElement.play();
 
-      // Запускаем: camera.start() запросит доступ к камере
-      try {
-        selfieCamera.start();
-      } catch (e) {
-        // Замена сломанного fallback на сообщение об ошибке
-        console.error("Ошибка при запуске камеры MediaPipe.Camera:", e);
-        alert("Не удалось запустить камеру. Проверьте разрешения браузера и перезагрузите страницу.");
-      }
+              // Теперь запускаем MediaPipe Camera с уже полученным потоком
+              selfieCamera = new Camera(videoElement, {
+                  onFrame: async () => {
+                      await faceMesh.send({ image: videoElement });
+                  },
+                  width: 1280,
+                  height: 720
+              });
+              
+              // Запуск обработки кадров FaceMesh
+              selfieCamera.start();
+          })
+          .catch(error => {
+              // Пользователь отказал в доступе или произошла другая ошибка
+              console.error("Ошибка при запросе или запуске камеры:", error);
+              alert("Ошибка: Не удалось получить доступ к камере. Пожалуйста, разрешите использование камеры в настройках браузера.");
+          });
     }
 
     function stopSelfieCamera() {
@@ -517,11 +518,12 @@
       
       // Вычисляем размер canvas исходя из CSS max-width (600px) и пропорций видео
       const maxDisplayWidth = Math.min(window.innerWidth * 0.9, 600); 
-      const scale = maxDisplayWidth / vw;
-      canvas.width = vw; // Используем исходные размеры для FaceMesh
+      // Устанавливаем размеры холста (внутренние пиксели) равными размерам видеопотока для точной обработки FaceMesh
+      canvas.width = vw; 
       canvas.height = vh;
       
       // Устанавливаем отображаемые стили, чтобы canvas масштабировался по CSS
+      const scale = maxDisplayWidth / vw;
       canvas.style.width = maxDisplayWidth + 'px';
       canvas.style.height = (vh * scale) + 'px';
 
@@ -537,10 +539,10 @@
 
       // Рисуем видео (себя) поверх фона
       if (results.image) {
-        // используем результаты.image (встроенный кадр видео)
+        // используем результаты.image (кадр, обработанный FaceMesh)
         ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
       } else if (videoEl && videoEl.readyState >= 2) {
-        // Fallback: рисуем с videoEl (менее эффективно)
+        // Fallback: рисуем с videoEl (если FaceMesh еще не начал обработку)
         ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
       }
 
@@ -631,15 +633,7 @@
 
     // Прерывание камеры при закрытии вкладки — хорошая практика
     window.addEventListener('beforeunload', () => {
-      if (selfieCamera && typeof selfieCamera.stop === 'function') {
-        try { selfieCamera.stop(); } catch(e){ }
-      }
-      const v = document.getElementById('selfieVideo');
-      if (v && v.srcObject) {
-        try {
-          v.srcObject.getTracks().forEach(t => t.stop());
-        } catch(e){}
-      }
+      stopSelfieCamera();
     });
 
   </script>
