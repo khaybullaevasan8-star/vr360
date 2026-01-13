@@ -1,1 +1,72 @@
-<h1>503 Service Unavailable</h1>
+Если вы хотите создать страницу, которая выглядит как стандартная ошибка (например, 404 Not Found или 500 Internal Server Error), чтобы посетители видели ее вместо основного контента, вот простой и стильный код.
+
+Я подготовил универсальный вариант, который выглядит профессионально.
+
+Код страницы ошибки (HTML + CSS)
+Вы можете сохранить этот код как файл index.html и загрузить в свой репозиторий GitHub.
+
+HTML
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка доступа к сайту</title>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 72px;
+            margin: 0;
+            color: #e74c3c;
+        }
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+        .error-code {
+            color: #999;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        a:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>503</h1>
+    <p>Извините, на сайте проводятся технические работы.</p>
+    <p>Мы скоро вернемся!</p>
+    <div class="error-code">Код ошибки: Service Temporarily Unavailable</div>
+    <a href="/">Попробовать обновить</a>
+</div>
+
+</body>
+</html>
